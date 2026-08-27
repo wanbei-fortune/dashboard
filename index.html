@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 万倍暴富计划 · 协作工作台</title>
+<style>
+:root {--bg:#f5f7fa;--card:#ffffff;--border:#e5e7eb;--text:#1f2937;--text2:#6b7280;--green:#059669;--red:#dc2626;--gold:#d97706;--blue:#2563eb;--purple:#7c3aed;--cyan:#0891b2;--pink:#db2777;--shadow:0 1px 3px rgba(0,0,0,0.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;line-height:1.5}
+
+/* === Header === */
+.header{background:linear-gradient(135deg,#1e40af,#3b82f6);padding:16px 24px;color:white}
+.header h1{font-size:17px;margin-bottom:4px;font-weight:600}
+.header .subtitle{color:rgba(255,255,255,0.8);font-size:12px}
+.header-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.hstat{background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.2)}
+.hstat .label{color:rgba(255,255,255,0.7);font-size:10px}.hstat .value{font-size:15px;font-weight:700}
+.green{color:var(--green)}.gold{color:var(--gold)}.red{color:var(--red)}.blue{color:var(--blue)}.purple{color:var(--purple)}.cyan{color:var(--cyan)}
+
+/* === Tab Navigation === */
+.tab-nav{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto;box-shadow:var(--shadow)}
+.tab-btn{padding:12px 20px;cursor:pointer;border:none;background:none;color:var(--text2);font-size:13px;font-family:inherit;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s;position:relative;font-weight:500}
+.tab-btn:hover{color:var(--blue);background:rgba(37,99,235,0.04)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tab-btn .badge{position:absolute;top:6px;right:4px;background:var(--red);color:white;font-size:9px;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center}
+.tab-btn .owner{font-size:10px;color:var(--text2);margin-left:4px;opacity:0.6}
+
+/* === Tab Content === */
+.tab-content{display:none;padding:0}
+.tab-content.active{display:block}
+
+/* === Section Common === */
+.section-header{padding:12px 24px;background:var(--card);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.section-header h2{font-size:15px;font-weight:600}
+.section-header .meta{color:var(--text2);font-size:11px}
+.section-body{padding:20px 24px}
+
+/* === Stock Pool Tab === */
+.controls{padding:10px 24px;background:var(--card);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.controls input,.controls select{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:5px 10px;border-radius:6px;font-size:12px}
+.controls input:focus,.controls select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,0.1)}
+.btn{background:var(--blue);color:white;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;transition:background 0.15s}
+.btn:hover{background:#1d4ed8}.btn.refresh{background:var(--green)}.btn.sm{padding:3px 10px;font-size:11px}
+.table-wrap{overflow-x:auto;padding:0 24px 24px}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th{background:#f9fafb;color:var(--text2);padding:8px 8px;text-align:left;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;position:sticky;top:0;z-index:10;border-bottom:2px solid var(--border)}
+th:hover{color:var(--blue)}
+td{padding:7px 8px;border-bottom:1px solid #f3f4f6;white-space:nowrap;font-size:12px}
+tr:hover{background:rgba(37,99,235,0.03)}
+tr.signal-active{background:rgba(217,119,6,0.06)}
+tr.in-zone{background:rgba(5,150,105,0.04)}
+.stock-name{font-weight:600;color:var(--blue)}
+.theme-tag{background:rgba(124,58,237,0.08);color:var(--purple);padding:2px 6px;border-radius:4px;font-size:11px}
+.price-near{color:var(--green);font-weight:600}.price-far{color:var(--red)}.price-mid{color:var(--gold);font-weight:600}
+.score-bar{display:inline-block;width:7px;height:7px;border-radius:50%;margin:1px}
+.score-on{background:var(--gold)}.score-off{background:#e5e7eb}
+.signal-badge{padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}
+.signal-yes{background:rgba(5,150,105,0.1);color:var(--green);animation:pulse 2s infinite}
+.signal-no{color:var(--text2)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.positive{color:var(--green)}.negative{color:var(--red)}
+.pos-badge{padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}
+.pos-zone{background:rgba(5,150,105,0.1);color:var(--green)}
+.pos-below{background:rgba(37,99,235,0.1);color:var(--blue)}
+.pos-near{background:rgba(217,119,6,0.1);color:var(--gold)}
+.pos-far{color:var(--text2)}
+
+/* === Daily Report Tab (超能干) === */
+.daily-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.daily-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+.daily-card h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-weight:600}
+.daily-card .card-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600}
+.daily-card ul{list-style:none;padding:0}
+.daily-card li{padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:12px;line-height:1.6}
+.daily-card li:last-child{border-bottom:none}
+.daily-card .full-width{grid-column:1/-1}
+.alert-box{background:rgba(220,38,38,0.05);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;margin-top:8px}
+.alert-box.warn{background:rgba(217,119,6,0.05);border-color:rgba(217,119,6,0.2)}
+.alert-box.good{background:rgba(5,150,105,0.05);border-color:rgba(5,150,105,0.2)}
+.data-quality-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.dq-item{background:var(--bg);padding:4px 10px;border-radius:6px;font-size:11px}
+.dq-ok{border-left:3px solid var(--green)}.dq-warn{border-left:3px solid var(--gold)}.dq-err{border-left:3px solid var(--red)}
+
+/* === Research Tab (林奇) === */
+.research-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.research-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+.research-card h3{font-size:13px;margin-bottom:10px;color:var(--cyan);font-weight:600}
+.research-card .full-width{grid-column:1/-1}
+.research-card .two-col{grid-column:span 2}
+.overseas-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:12px}
+.overseas-row:last-child{border-bottom:none}
+.policy-item{padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;font-size:12px}
+.policy-item .tag{display:inline-block;background:rgba(8,145,178,0.1);color:var(--cyan);padding:1px 6px;border-radius:4px;font-size:10px;margin-right:6px;font-weight:500}
+.sector-heat{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;margin:2px}
+.heat-hot{background:rgba(220,38,38,0.08);color:var(--red)}
+.heat-warm{background:rgba(217,119,6,0.08);color:var(--gold)}
+.heat-cool{background:rgba(37,99,235,0.08);color:var(--blue)}
+.heat-cold{background:rgba(107,114,128,0.08);color:var(--text2)}
+
+/* === Trading Tab (李福莫尔) === */
+.trading-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.trading-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+.trading-card h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:6px;font-weight:600}
+.trading-card .full-width{grid-column:1/-1}
+.rec-item{display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px}
+.rec-item .rec-name{font-weight:600;color:var(--blue);font-size:13px}
+.rec-item .rec-meta{font-size:11px;color:var(--text2)}
+.rec-item .rec-reason{font-size:11px;color:var(--text);margin-top:2px}
+.tech-row{display:flex;gap:12px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:12px;flex-wrap:wrap}
+.tech-row:last-child{border-bottom:none}
+.tech-label{color:var(--text2);min-width:80px}
+.tech-val{font-weight:600}
+.trend-bull{color:var(--green)}.trend-bear{color:var(--red)}.trend-neutral{color:var(--gold)}
+.kline-mini{display:flex;align-items:flex-end;gap:1px;height:40px;margin-top:8px}
+.kline-bar{width:4px;border-radius:1px 1px 0 0;min-height:2px}
+
+/* === Markdown Rendered Content === */
+.md-content{font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.md-content h1{font-size:17px;font-weight:700;margin:12px 0 8px;color:var(--blue);border-bottom:1px solid var(--border);padding-bottom:4px}
+.md-content h2{font-size:15px;font-weight:600;margin:10px 0 6px;color:var(--cyan)}
+.md-content h3{font-size:13px;font-weight:600;margin:8px 0 4px;color:var(--gold)}
+.md-content strong,.md-content b{font-weight:600;color:var(--text)}
+.md-content em{font-style:italic;color:var(--text2)}
+.md-content code{background:rgba(124,58,237,0.08);color:var(--purple);padding:1px 5px;border-radius:3px;font-size:11px}
+.md-content pre{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:10px;margin:8px 0;overflow-x:auto;font-size:11px}
+.md-content pre code{background:none;padding:0;color:var(--text)}
+.md-content table{width:100%;border-collapse:collapse;margin:8px 0;font-size:11px}
+.md-content th{background:#f0f4ff;color:var(--blue);padding:6px 8px;text-align:left;border:1px solid var(--border);cursor:default;position:static;font-weight:600}
+.md-content td{padding:5px 8px;border:1px solid var(--border)}
+.md-content tr:nth-child(even){background:#fafbfc}
+.md-content ul,.md-content ol{padding-left:20px;margin:6px 0}
+.md-content li{padding:2px 0;line-height:1.6}
+.md-content blockquote{border-left:3px solid var(--blue);padding:4px 12px;margin:8px 0;background:rgba(37,99,235,0.03);color:var(--text2);border-radius:0 4px 4px 0}
+.md-content hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+.md-content a{color:var(--blue);text-decoration:none}
+.md-content .emoji{font-size:14px}
+
+/* === Date Selector === */
+.date-selector{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.date-selector label{font-size:11px;color:var(--text2)}
+.date-selector select,.date-selector input[type=date]{background:var(--card);color:var(--text);border:1px solid var(--border);padding:4px 8px;border-radius:4px;font-size:11px;font-family:inherit}
+.date-selector .date-tag{font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text2)}
+.date-selector .date-tag:hover{border-color:var(--blue);color:var(--blue)}
+.date-selector .date-tag.active{border-color:var(--blue);color:var(--blue);background:rgba(37,99,235,0.06)}
+.date-history{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+
+/* === Edit Panel === */
+.edit-panel{background:#f0f4ff;border:1px solid rgba(37,99,235,0.15);border-radius:8px;padding:12px;margin-top:12px}
+.edit-panel h4{font-size:12px;color:var(--blue);margin-bottom:8px;font-weight:600}
+.edit-panel textarea{width:100%;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px;font-family:inherit;font-size:12px;min-height:120px;resize:vertical;line-height:1.5}
+.edit-panel textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,0.1)}
+.edit-panel .edit-hint{font-size:10px;color:var(--text2);margin-top:4px}
+.edit-panel .edit-actions{display:flex;gap:8px;margin-top:8px}
+.edit-panel .preview-toggle{font-size:11px;color:var(--text2);cursor:pointer;text-decoration:underline}
+.edit-panel .preview-toggle:hover{color:var(--blue)}
+
+/* === Footer === */
+.footer{padding:10px 24px;color:var(--text2);font-size:11px;border-top:1px solid var(--border);display:flex;justify-content:space-between;background:var(--card)}
+
+/* === Responsive === */
+@media(max-width:768px){
+  .daily-grid,.research-grid,.trading-grid{grid-template-columns:1fr}
+  .research-card .two-col,.daily-card .full-width,.trading-card .full-width{grid-column:1}
+  .tab-btn .owner{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<div class="header">
+  <h1>💰 万倍暴富计划 · 协作工作台</h1>
+  <div class="subtitle">4 AI投研团队协作界面 · HIT(数据) · 超能干(质检) · 林奇(研究) · 李福莫尔(交易)</div>
+  <div class="header-stats">
+    <div class="hstat"><div class="label">总标的</div><div class="value" id="hTotal">-</div></div>
+    <div class="hstat"><div class="label">🔥 买点信号</div><div class="value gold" id="hSignals">-</div></div>
+    <div class="hstat"><div class="label">📍 买点区间内</div><div class="value green" id="hZone">-</div></div>
+    <div class="hstat"><div class="label">📈 多头排列</div><div class="value green" id="hBull">-</div></div>
+    <div class="hstat"><div class="label">⏰ 更新</div><div class="value" style="font-size:12px" id="hTime">-</div></div>
+    <div class="hstat"><div class="label">行情</div><div class="value green" id="hQuote">实时</div></div>
+    <div class="hstat"><div class="label">⚠ 买点过期</div><div class="value gold" id="hStale">-</div></div>
+  </div>
+</div>
+
+<!-- ===== Tab Navigation ===== -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('pool')" id="tabPool">
+    📊 选股池跟踪<span class="owner">HIT</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('daily')" id="tabDaily">
+    📋 每日日报<span class="owner">超能干</span>
+    <span class="badge" id="dailyBadge" style="display:none">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('research')" id="tabResearch">
+    🔬 行业研究<span class="owner">林奇</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('trading')" id="tabTrading">
+    💹 交易跟踪<span class="owner">李福莫尔</span>
+    <span class="badge" id="tradeBadge" style="display:none">0</span>
+  </button>
+</div>
+
+<!-- ===== TAB 1: 选股池跟踪 (HIT) ===== -->
+<div class="tab-content active" id="panelPool">
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="🔍 搜索名称/题材..." style="width:180px">
+    <select id="signalFilter"><option value="all">全部信号</option><option value="5">🔥 有信号</option><option value="0">无信号</option></select>
+    <select id="themeFilter"><option value="all">全部题材</option></select>
+    <select id="posFilter"><option value="all">全部位置</option><option value="zone">★ 买点区间内</option><option value="below">低于买点</option><option value="near_above">略高于买点</option></select>
+    <select id="sortPreset"><option value="">排序方式</option><option value="hitValue">击球值↓</option><option value="distLow">距低点↑</option><option value="totalScore">评分↓</option><option value="change">涨跌↓</option><option value="pe">PE↑</option></select>
+    <button class="btn" onclick="resetFilters()">重置</button>
+  </div>
+  <div class="table-wrap">
+    <table id="stockTable">
+    <thead><tr>
+      <th data-col="name">名称</th>
+      <th data-col="theme">题材</th>
+      <th data-col="price">现价</th>
+      <th data-col="change">涨跌%</th>
+      <th data-col="lowBuy">低位买点</th>
+      <th data-col="highBuy">高位买点</th>
+      <th data-col="distLow">距低买</th>
+      <th data-col="distHigh">距高买</th>
+      <th data-col="position">位置</th>
+      <th data-col="hitValue">击球值</th>
+      <th data-col="pe">PE</th>
+      <th data-col="revGrowth">营收增速</th>
+      <th data-col="profitGrowth">利润增速</th>
+      <th data-col="peg">PEG</th>
+      <th data-col="totalScore">评分</th>
+      <th data-col="buySignal">信号</th>
+    </tr></thead>
+    <tbody id="stockBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== TAB 2: 每日日报 (超能干) ===== -->
+<div class="tab-content" id="panelDaily">
+  <div class="section-header">
+    <h2>📋 每日日报 · 超能干</h2>
+    <div class="meta">数据质量监控 · 每日复盘 · 更新于 <span id="dailyTime">-</span></div>
+  </div>
+  <div class="section-body">
+    <!-- 日期选择器 -->
+    <div class="date-selector">
+      <label>📅 日期:</label>
+      <input type="date" id="dailyDatePicker" onchange="switchDailyDate(this.value)">
+      <div class="date-history" id="dailyDateHistory"></div>
+    </div>
+    <div class="daily-grid" id="dailyContent">
+      <!-- 数据质量仪表盘 -->
+      <div class="daily-card">
+        <h3>🔍 数据质量仪表盘 <span class="card-badge" style="background:rgba(16,185,129,0.2);color:var(--green)">实时</span></h3>
+        <div id="dqDashboard"></div>
+      </div>
+
+      <!-- 今日信号汇总 -->
+      <div class="daily-card">
+        <h3>🔥 今日信号汇总</h3>
+        <div id="dailySignals"></div>
+      </div>
+
+      <!-- 买点偏离预警 -->
+      <div class="daily-card">
+        <h3>⚠️ 买点偏离预警</h3>
+        <div id="dailyAlerts"></div>
+      </div>
+
+      <!-- 深度跌破标的 -->
+      <div class="daily-card">
+        <h3>📉 深度跌破标的 (>10%)</h3>
+        <div id="dailyDeepBelow"></div>
+      </div>
+
+      <!-- 数据时效性监控 -->
+      <div class="daily-card full-width">
+        <h3>🕐 数据时效性监控 <span class="card-badge" style="background:rgba(245,158,11,0.2);color:var(--gold)">超能干关注</span></h3>
+        <div id="dailyFreshness"></div>
+      </div>
+
+      <!-- 团队协作摘要 -->
+      <div class="daily-card full-width">
+        <h3>🤝 团队协作摘要 <span class="card-badge" style="background:rgba(236,72,153,0.2);color:var(--pink)">超能干汇总</span></h3>
+        <div id="teamSummary" class="md-content"></div>
+        <div class="edit-panel">
+          <h4>✏️ 编辑团队摘要（超能干权限）<span class="preview-toggle" onclick="togglePreview('teamSummary')">📖 预览</span></h4>
+          <textarea id="teamSummaryNotesEdit" placeholder="汇总今日HIT/林奇/李福莫尔的关键发现&#10;&#10;## 今日团队摘要&#10;&#10;| 成员 | 关键发现 | 状态 |&#10;|------|---------|------|&#10;| HIT | 选股池清理假数据，95只真实标的 | ✅ |&#10;| 林奇 | 海外NVDA创新高，映射寒武纪 | 🔍 |&#10;| 李福莫尔 | 东方电子缠论底分型确认 | 🔥 |"></textarea>
+          <div class="edit-hint">💡 汇总各成员当日关键发现，方便主人一眼看全</div>
+          <div id="teamSummaryNotesPreview" class="md-content" style="display:none;border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:8px"></div>
+          <div class="edit-actions">
+            <button class="btn sm" onclick="saveNotes('teamSummary')">💾 保存摘要</button>
+            <button class="btn sm" style="background:var(--purple)" onclick="togglePreview('teamSummary')">📖 预览Markdown</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 每日复盘笔记 (可编辑, Markdown) -->
+      <div class="daily-card full-width">
+        <h3>📝 每日复盘笔记 <span class="card-badge" style="background:rgba(59,130,246,0.2);color:var(--blue)">超能干编辑</span> <span class="card-badge" style="background:rgba(139,92,246,0.2);color:var(--purple)">支持Markdown</span></h3>
+        <div id="dailyNotes" class="md-content"></div>
+        <div class="edit-panel">
+          <h4>✏️ 编辑复盘笔记（超能干权限）<span class="preview-toggle" onclick="togglePreview('daily')">📖 预览</span></h4>
+          <textarea id="dailyNotesEdit" placeholder="支持Markdown格式！&#10;&#10;## 今日复盘&#10;&#10;| 标的 | 信号 | 操作 |&#10;|------|------|------|&#10;| 东方电子 | 🔥买点 | 关注 |&#10;&#10;**重点**: 缩量震荡，关注明日放量确认&#10;`code` 也支持"></textarea>
+          <div class="edit-hint">💡 支持Markdown: ## 标题 | **粗体** | *斜体* | | 表格 | | `代码` | ```代码块``` | > 引用 | - 列表</div>
+          <div id="dailyNotesPreview" class="md-content" style="display:none;border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:8px"></div>
+          <div class="edit-actions">
+            <button class="btn sm" onclick="saveDailyNotes()">💾 保存笔记</button>
+            <button class="btn sm" style="background:var(--purple)" onclick="togglePreview('daily')">📖 预览Markdown</button>
+            <button class="btn sm" style="background:var(--text2)" onclick="loadDailyData()">🔄 刷新</button>
+            <button class="btn sm" style="background:var(--cyan)" onclick="exportNotes('daily')">📤 导出</button>
+            <button class="btn sm" style="background:var(--gold)" onclick="document.getElementById('dailyImportFile').click()">📥 导入</button>
+            <input type="file" id="dailyImportFile" accept=".json" style="display:none" onchange="importNotes('daily', this)">
+          </div>
+          <div class="edit-hint">💡 笔记保存在浏览器localStorage · 导出JSON可跨浏览器备份 · 导入可恢复历史笔记</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 3: 行业研究 (林奇) ===== -->
+<div class="tab-content" id="panelResearch">
+  <div class="section-header">
+    <h2>🔬 行业研究 · 林奇</h2>
+    <div class="meta">产业趋势 · 海外对标 · 政策扫描 · 更新于 <span id="researchTime">-</span></div>
+  </div>
+  <div class="section-body">
+    <div class="research-grid" id="researchContent">
+      <!-- 研究推荐 -->
+      <div class="research-card full-width">
+        <h3>⭐ 林奇推荐关注 <span class="card-badge" style="background:rgba(8,145,178,0.1);color:var(--cyan)">供李福莫尔验证</span></h3>
+        <div id="researchRecs"></div>
+      </div>
+
+      <!-- 海外龙头监控 -->
+      <div class="research-card two-col">
+        <h3>🌍 海外龙头实时监控</h3>
+        <div id="overseasMonitor"></div>
+      </div>
+
+      <!-- 行业热度图 -->
+      <div class="research-card">
+        <h3>🔥 行业热度图</h3>
+        <div id="sectorHeat"></div>
+      </div>
+
+      <!-- 政策扫描 -->
+      <div class="research-card full-width">
+        <h3>📜 政策扫描 · A股映射</h3>
+        <div id="policyScan"></div>
+      </div>
+
+      <!-- 产业趋势笔记 (可编辑, Markdown) -->
+      <div class="research-card full-width">
+        <h3>📝 产业研究笔记 <span class="card-badge" style="background:rgba(6,182,212,0.2);color:var(--cyan)">林奇编辑</span> <span class="card-badge" style="background:rgba(139,92,246,0.2);color:var(--purple)">支持Markdown</span></h3>
+        <div id="researchNotes" class="md-content"></div>
+        <div class="edit-panel">
+          <h4>✏️ 编辑研究笔记（林奇权限）<span class="preview-toggle" onclick="togglePreview('research')">📖 预览</span></h4>
+          <textarea id="researchNotesEdit" placeholder="支持Markdown格式！&#10;&#10;## AI产业链研究&#10;&#10;### 海外映射&#10;- NVDA → 寒武纪/海光信息&#10;- TSM → 中芯国际&#10;&#10;**结论**: 算力需求持续超预期"></textarea>
+          <div class="edit-hint">💡 支持Markdown: ## 标题 | **粗体** | | 表格 | | `代码` | > 引用 | - 列表</div>
+          <div id="researchNotesPreview" class="md-content" style="display:none;border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:8px"></div>
+          <div class="edit-actions">
+            <button class="btn sm" onclick="saveResearchNotes()">💾 保存笔记</button>
+            <button class="btn sm" style="background:var(--purple)" onclick="togglePreview('research')">📖 预览Markdown</button>
+            <button class="btn sm" style="background:var(--text2)" onclick="loadResearchData()">🔄 刷新</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 4: 交易跟踪 (李福莫尔) ===== -->
+<div class="tab-content" id="panelTrading">
+  <div class="section-header">
+    <h2>💹 交易跟踪 · 李福莫尔</h2>
+    <div class="meta">缠论分析 · 推荐跟踪 · 技术快照 · 更新于 <span id="tradingTime">-</span></div>
+  </div>
+  <div class="section-body">
+    <div class="trading-grid" id="tradingContent">
+      <!-- 推荐标的列表 -->
+      <div class="trading-card">
+        <h3>⭐ 推荐标的池 <span class="card-badge" style="background:rgba(245,158,11,0.2);color:var(--gold)">李福莫尔</span></h3>
+        <div id="recList"></div>
+      </div>
+
+      <!-- 技术面快照 -->
+      <div class="trading-card">
+        <h3>📊 技术面快照（推荐标的）</h3>
+        <div id="techSnapshot"></div>
+      </div>
+
+      <!-- 缠论买点分析 -->
+      <div class="trading-card full-width">
+        <h3>🔮 缠论买点分析</h3>
+        <div id="chanAnalysis"></div>
+      </div>
+
+      <!-- 交易复盘笔记 (可编辑, Markdown) -->
+      <div class="trading-card full-width">
+        <h3>📝 交易复盘笔记 <span class="card-badge" style="background:rgba(236,72,128,0.2);color:var(--pink)">李福莫尔编辑</span> <span class="card-badge" style="background:rgba(139,92,246,0.2);color:var(--purple)">支持Markdown</span></h3>
+        <div id="tradingNotes" class="md-content"></div>
+        <div class="edit-panel">
+          <h4>✏️ 编辑交易笔记（李福莫尔权限）<span class="preview-toggle" onclick="togglePreview('trading')">📖 预览</span></h4>
+          <textarea id="tradingNotesEdit" placeholder="支持Markdown格式！&#10;&#10;## 缠论买点扫描&#10;&#10;| 标的 | 分型 | 买点 | 状态 |&#10;|------|------|------|------|&#10;| 东方电子 | 底分型 | 11.93 | ✅确认 |&#10;&#10;**共振标的🔥**: 东方电子+新安股份"></textarea>
+          <div class="edit-hint">💡 支持Markdown: ## 标题 | **粗体** | | 表格 | | `代码` | > 引用 | - 列表</div>
+          <div id="tradingNotesPreview" class="md-content" style="display:none;border:1px solid var(--border);border-radius:6px;padding:10px;margin-top:8px"></div>
+          <div class="edit-actions">
+            <button class="btn sm" onclick="saveTradingNotes()">💾 保存笔记</button>
+            <button class="btn sm" style="background:var(--purple)" onclick="togglePreview('trading')">📖 预览Markdown</button>
+            <button class="btn sm" style="background:var(--text2)" onclick="loadTradingData()">🔄 刷新</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Footer ===== -->
+<div class="footer">
+  <span>⚠️ 数据来源：新浪财经API · 仅供参考，不构成投资建议</span>
+  <span>万倍暴富计划投研系统 v2.0 · 协作工作台 · <span id="footerTime">-</span></span>
+</div>
+
+<script>
+// ===== STOCK DATA (injected by HIT's data pipeline) =====
+const STOCKS=[{"name": "太极实业", "pivot": 7.35, "lowBuy": 7.5705, "highBuy": 7.87332, "hitValue": 10, "theme": "存储封测", "pe": 32.58, "revGrowth": 23.44, "epsGrowth": -16.7, "profitGrowth": -22.38, "peg": -1.45576407506702, "interestGrowth": -11.15, "peg2": -2.9219730941704, "ce5y": -0.38, "ce5r": -0.26, "fcf": 14.01, "ncf": 57.48, "revenue": 71.51, "scoreImprove": 0, "scoreUnderval": 5, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 20.14, "change": 2.6, "high": 20.3, "low": 19.24, "volume": 222005748.0, "distLow": 166.0, "distHigh": 155.8, "position": "far", "freshness": "warn"}, {"name": "同有科技", "pivot": 28.54, "lowBuy": 29.48, "highBuy": 31.6, "hitValue": 20, "theme": "存储", "pe": -30.984126984127, "revGrowth": 197.06, "epsGrowth": 300, "profitGrowth": 295.24, "peg": -0.104945559491014, "interestGrowth": 211.69, "peg2": -0.146365567500246, "ce5y": 0.015, "ce5r": -5.9, "fcf": -0.56, "ncf": -0.54, "revenue": 1.54, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:49", "buyPointSource": "chanlun_auto", "totalScore": 15, "price": 32.36, "change": 11.7, "high": 32.44, "low": 29.55, "volume": 40847472.0, "distLow": 9.8, "distHigh": 2.4, "position": "near_above", "freshness": "fresh"}, {"name": "锦浪科技", "pivot": 68.71, "lowBuy": 70.7713, "highBuy": 73.602152, "hitValue": 5, "theme": "逆变器", "pe": 56.83, "revGrowth": 3.43, "epsGrowth": -16.25, "profitGrowth": -18.64, "peg": -3.04881974248927, "interestGrowth": -24.21, "peg2": -2.34737711689385, "ce5y": 2.29, "ce5r": 2.62, "fcf": 11.82, "ncf": -57, "revenue": 18.69, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 61.75, "change": -2.29, "high": 63.64, "low": 59.44, "volume": 16744991.0, "distLow": -12.7, "distHigh": -16.1, "position": "below", "freshness": "warn"}, {"name": "柏诚股份", "pivot": 15.02, "lowBuy": 15.4706, "highBuy": 16.089424, "hitValue": 5, "theme": "洁净室", "pe": 40.52, "revGrowth": -36.16, "epsGrowth": -18.18, "profitGrowth": -18.29, "peg": -2.215418261345, "interestGrowth": 27.72, "peg2": 1.46176046176046, "ce5y": 1.08, "ce5r": -8.09, "fcf": 2.05, "ncf": 14.02, "revenue": 8.53, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 27.11, "change": 4.91, "high": 27.2, "low": 25.41, "volume": 16872539.0, "distLow": 75.2, "distHigh": 68.5, "position": "far", "freshness": "warn"}, {"name": "南都电源", "pivot": 14.5, "lowBuy": 14.935, "highBuy": 15.5324, "hitValue": 15, "theme": "算力中心", "pe": -9.60093896713615, "revGrowth": -6.22, "epsGrowth": -85.71, "profitGrowth": -438.53, "peg": 0.0218934598935903, "interestGrowth": -459.41, "peg2": 0.0208984109338851, "ce5y": -0.65, "ce5r": 4.31, "fcf": 2.69, "ncf": -2.34, "revenue": 19.88, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 3, "totalScore": 5, "freshness": "warn"}, {"name": "长缆科技", "pivot": 17.59, "lowBuy": 18.37, "highBuy": 19.26, "hitValue": 15, "theme": "液冷", "pe": 29.8, "revGrowth": -11.43, "epsGrowth": 511.11, "profitGrowth": 540.13, "peg": 0.0551719030603744, "interestGrowth": 884.12, "peg2": 0.0337058317875402, "ce5y": 3.45, "ce5r": -0.13, "fcf": 0.64, "ncf": 5.81, "revenue": 4.09, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:49", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 16.34, "change": -0.49, "high": 16.45, "low": 16.11, "volume": 6863439.0, "distLow": -11.1, "distHigh": -15.2, "position": "below", "freshness": "fresh"}, {"name": "均葳电子", "pivot": 30.92, "lowBuy": 31.8476, "highBuy": 33.121504, "hitValue": 5, "theme": "电阻器", "pe": 85.42, "revGrowth": 20.02, "epsGrowth": -10.52, "profitGrowth": 27.94, "peg": 3.05726556907659, "interestGrowth": 9.22, "peg2": 9.2646420824295, "ce5y": 1.3, "ce5r": -2.23, "fcf": 1.33, "ncf": 9.34, "revenue": 2.19, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "freshness": "warn"}, {"name": "翰宇药业", "pivot": 17.28, "lowBuy": 17.7984, "highBuy": 18.510336, "hitValue": 10, "theme": "创新药", "pe": -251.875, "revGrowth": 11.86, "epsGrowth": -166.67, "profitGrowth": -88.25, "peg": 2.85410764872521, "interestGrowth": -40.48, "peg2": 6.22220849802372, "ce5y": 1.6, "ce5r": 5.77, "fcf": 0.95, "ncf": -7.31, "revenue": 1.34, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 23.34, "change": 2.96, "high": 23.45, "low": 22.41, "volume": 33817425.0, "distLow": 31.1, "distHigh": 26.1, "position": "far", "freshness": "warn"}, {"name": "晋拓股份", "pivot": 13.06, "lowBuy": 13.4518, "highBuy": 13.989872, "hitValue": 5, "theme": "商业航天", "pe": 129.25, "revGrowth": 14.9, "epsGrowth": 80, "profitGrowth": -7.4, "peg": -17.4662162162162, "interestGrowth": -18.37, "peg2": -7.03592814371257, "ce5y": -4.15, "ce5r": 25.09, "fcf": -0.55, "ncf": 1.03, "revenue": 3.17, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 21.95, "change": 1.86, "high": 22.03, "low": 21.23, "volume": 5379100.0, "distLow": 63.2, "distHigh": 56.9, "position": "far", "freshness": "warn"}, {"name": "起帆电缆", "pivot": 19.13, "lowBuy": 19.7039, "highBuy": 20.492056, "hitValue": 5, "theme": "电缆/风电", "pe": 68.17, "revGrowth": -1.42, "epsGrowth": 200, "profitGrowth": 153.14, "peg": 0.445148230377432, "interestGrowth": 159.47, "peg2": 0.427478522606133, "ce5y": 8.74, "ce5r": 1.2, "fcf": 3.13, "ncf": -2.63, "revenue": 59.91, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 20.42, "change": 0.69, "high": 20.58, "low": 19.87, "volume": 4868180.0, "distLow": 3.6, "distHigh": -0.4, "position": "zone", "freshness": "warn"}, {"name": "满坤科技", "pivot": 36.37, "lowBuy": 37.4611, "highBuy": 38.959544, "hitValue": 5, "theme": "自动驾驶", "pe": 57.04, "revGrowth": 38.81, "epsGrowth": 13.04, "profitGrowth": 7, "peg": 8.14857142857143, "interestGrowth": -23.3, "peg2": -2.4480686695279, "ce5y": 0.74, "ce5r": 26.45, "fcf": 0.43, "ncf": 7.26, "revenue": 4.63, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 37.57, "change": 3.7, "high": 37.71, "low": 36.07, "volume": 4557940.0, "distLow": 0.3, "distHigh": -3.6, "position": "zone", "freshness": "warn"}, {"name": "东方电热", "pivot": 4.95, "lowBuy": 5.0985, "highBuy": 5.30244, "hitValue": 5, "theme": "储能/机器人", "pe": 26, "revGrowth": 6.63, "epsGrowth": -20, "profitGrowth": -21.51, "peg": -1.20874012087401, "interestGrowth": -33.12, "peg2": -0.785024154589372, "ce5y": 1.83, "ce5r": 20.94, "fcf": 1.35, "ncf": 14.12, "revenue": 8.35, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 0, "totalScore": 0, "price": 4.24, "change": 0.95, "high": 4.27, "low": 4.15, "volume": 20438610.0, "distLow": -16.8, "distHigh": -20.0, "position": "below", "freshness": "warn"}, {"name": "华菱线缆", "pivot": 18.21, "lowBuy": 18.7563, "highBuy": 19.506552, "hitValue": 10, "theme": "核聚变", "pe": 126.52, "revGrowth": 7.54, "epsGrowth": -25, "profitGrowth": -25.54, "peg": -4.95379796397807, "interestGrowth": -31.02, "peg2": -4.07865892972276, "ce5y": 35.24, "ce5r": 0.28, "fcf": 3.69, "ncf": 12.97, "revenue": 11.3, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 13.85, "change": 0.73, "high": 13.94, "low": 13.51, "volume": 9608200.0, "distLow": -26.2, "distHigh": -29.0, "position": "below", "freshness": "warn"}, {"name": "易天股份", "pivot": 34.1, "lowBuy": 35.123, "highBuy": 36.52792, "hitValue": 0, "theme": "半导体设备", "pe": 265.51, "revGrowth": -5.49, "epsGrowth": -57.14, "profitGrowth": -55.42, "peg": -4.79086972212198, "interestGrowth": -54.68, "peg2": -4.85570592538405, "ce5y": 11.08, "ce5r": 20.92, "fcf": 1.21, "ncf": 2.1, "revenue": 1.32, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 0, "totalScore": 0, "price": 19.33, "change": 2.11, "high": 19.57, "low": 18.88, "volume": 4733092.0, "distLow": -45.0, "distHigh": -47.1, "position": "below", "freshness": "warn"}, {"name": "万胜智能", "pivot": 13.95, "lowBuy": 14.63, "highBuy": 15.23, "hitValue": 15, "theme": "电表", "pe": 43.27, "revGrowth": 12.39, "epsGrowth": -38.46, "profitGrowth": -28.67, "peg": -1.50924311126613, "interestGrowth": -41.33, "peg2": -1.04693926929591, "ce5y": 0.69, "ce5r": 0.2, "fcf": 1.92, "ncf": 8.38, "revenue": 2.57, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "buyPointUpdated": "2026-08-26T19:46:49", "buyPointSource": "chanlun_auto", "totalScore": 5, "price": 14.18, "change": 0.21, "high": 14.23, "low": 13.98, "volume": 1646340.0, "distLow": -3.1, "distHigh": -6.9, "position": "below", "freshness": "fresh"}, {"name": "先导智能", "pivot": 33.27, "lowBuy": 35.1, "highBuy": 36.11, "hitValue": 15, "theme": "固态电池", "pe": 59.12, "revGrowth": 19.11, "epsGrowth": 4, "profitGrowth": 10.16, "peg": 5.81889763779528, "interestGrowth": 10.85, "peg2": 5.44884792626728, "ce5y": 134.99, "ce5r": 60.88, "fcf": 44.26, "ncf": 115.24, "revenue": 36.91, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:49", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 33.77, "change": 0.51, "high": 33.93, "low": 32.82, "volume": 26704321.0, "distLow": -3.8, "distHigh": -6.5, "position": "below", "freshness": "fresh"}, {"name": "南兴股份", "pivot": 17.26, "lowBuy": 18.09, "highBuy": 18.63, "hitValue": 15, "theme": "算力", "pe": 57.02, "revGrowth": -1.25, "epsGrowth": 0, "profitGrowth": -10.08, "peg": -5.65674603174603, "interestGrowth": -9.4, "peg2": -6.06595744680851, "ce5y": 0.6, "ce5r": 2.34, "fcf": 2.91, "ncf": 6.13, "revenue": 8.25, "scoreImprove": 0, "scoreUnderval": 5, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 15.94, "change": 1.21, "high": 16.0, "low": 15.7, "volume": 6863600.0, "distLow": -11.9, "distHigh": -14.4, "position": "below", "freshness": "fresh"}, {"name": "泰豪科技", "pivot": 15.55, "lowBuy": 16.0165, "highBuy": 16.65716, "hitValue": 5, "theme": "智能电源", "pe": 235.28, "revGrowth": 0.55, "epsGrowth": 50, "profitGrowth": 2.2, "peg": 106.945454545455, "interestGrowth": -2.45, "peg2": -96.0326530612245, "ce5y": 1.16, "ce5r": -25.05, "fcf": 3.68, "ncf": -9.5, "revenue": 9.61, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 8.35, "change": 0.6, "high": 8.4, "low": 8.19, "volume": 13770180.0, "distLow": -47.9, "distHigh": -49.9, "position": "below", "freshness": "warn"}, {"name": "兆龙互连", "pivot": 35.09, "lowBuy": 36.44, "highBuy": 38.66, "hitValue": 15, "theme": "电缆", "pe": 87.49, "revGrowth": 13.47, "epsGrowth": 7.69, "profitGrowth": 50.09, "peg": 1.7466560191655, "interestGrowth": 35.97, "peg2": 2.43230469835974, "ce5y": 1.13, "ce5r": 0.93, "fcf": 2.11, "ncf": 14.42, "revenue": 5.08, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 15, "price": 36.71, "change": 3.26, "high": 36.8, "low": 35.54, "volume": 8107754.0, "distLow": 0.7, "distHigh": -5.0, "position": "zone", "freshness": "fresh"}, {"name": "君逸数码", "pivot": 18.06, "lowBuy": 19.1, "highBuy": 19.55, "hitValue": 15, "theme": "光模块/子公司", "pe": 170.01, "revGrowth": 184.8, "epsGrowth": 0, "profitGrowth": 60.38, "peg": 2.81566743954952, "interestGrowth": -47.51, "peg2": -3.57840454641128, "ce5y": 1.61, "ce5r": 1.56, "fcf": 0.46, "ncf": 9.58, "revenue": 0.619924, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 17.18, "change": 2.38, "high": 17.23, "low": 16.66, "volume": 4637682.0, "distLow": -10.1, "distHigh": -12.1, "position": "below", "freshness": "fresh"}, {"name": "中超控股", "pivot": 8.2, "lowBuy": 8.446, "highBuy": 8.78384, "hitValue": 5, "theme": "商业航天/线缆", "pe": -882, "revGrowth": 21.59, "epsGrowth": 100, "profitGrowth": 68.72, "peg": -12.8346915017462, "interestGrowth": 73.83, "peg2": -11.9463632669646, "ce5y": 1, "ce5r": -8.27, "fcf": 2.13, "ncf": 2.3, "revenue": 12.59, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 5.39, "change": 0.19, "high": 5.42, "low": 5.3, "volume": 26145472.0, "distLow": -36.2, "distHigh": -38.6, "position": "below", "freshness": "warn"}, {"name": "中鼎股份", "pivot": 20.57, "lowBuy": 21.23, "highBuy": 21.87, "hitValue": 15, "theme": "零部件/机器人", "pe": 15.17, "revGrowth": -9.78, "epsGrowth": -22.58, "profitGrowth": -1.6, "peg": -9.48125, "interestGrowth": 10, "peg2": 1.517, "ce5y": 1.94, "ce5r": 1.32, "fcf": 11.61, "ncf": 21.82, "revenue": 43.79, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 21.04, "change": 4.37, "high": 21.13, "low": 19.97, "volume": 42801616.0, "distLow": -0.9, "distHigh": -3.8, "position": "below", "freshness": "fresh"}, {"name": "三祥新材", "pivot": 39.14, "lowBuy": 40.3142, "highBuy": 41.926768, "hitValue": 10, "theme": "小金属/存储", "pe": 154.45, "revGrowth": 14.26, "epsGrowth": 200, "profitGrowth": 200, "peg": 0.77225, "interestGrowth": 185.63, "peg2": 0.832031460432042, "ce5y": -3.2, "ce5r": 10.32, "fcf": 1.1, "ncf": 1.69, "revenue": 2.64, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 44.16, "change": 7.24, "high": 44.37, "low": 40.81, "volume": 30135547.0, "distLow": 9.5, "distHigh": 5.3, "position": "far", "freshness": "warn"}, {"name": "博敏电子", "pivot": 10.08, "lowBuy": 10.3824, "highBuy": 10.797696, "hitValue": 10, "theme": "HDI电路板", "pe": -422.2, "revGrowth": -0.6, "epsGrowth": -150, "profitGrowth": -189.38, "peg": 2.22938008237406, "interestGrowth": -189.82, "peg2": 2.22421241175851, "ce5y": -0.06, "ce5r": -0.23, "fcf": 0.71, "ncf": -9.4, "revenue": 8.18, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 18.42, "change": 8.67, "high": 18.49, "low": 16.87, "volume": 61516036.0, "distLow": 77.4, "distHigh": 70.6, "position": "far", "freshness": "warn"}, {"name": "豫光金铅", "pivot": 12.21, "lowBuy": 12.5763, "highBuy": 13.079352, "hitValue": 5, "theme": "小金属", "pe": 21.54, "revGrowth": 57.32, "epsGrowth": 9.52, "profitGrowth": 6.22, "peg": 3.46302250803858, "interestGrowth": -31.42, "peg2": -0.685550604710376, "ce5y": 11.73, "ce5r": -7.94, "fcf": 3.6, "ncf": -11.61, "revenue": 163.54, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 13.95, "change": 1.09, "high": 14.14, "low": 13.52, "volume": 75570785.0, "distLow": 10.9, "distHigh": 6.7, "position": "far", "freshness": "warn"}, {"name": "中金岭南", "pivot": 6.55, "lowBuy": 6.89, "highBuy": 7.14, "hitValue": 15, "theme": "铅锌", "pe": 40.99, "revGrowth": 21.42, "epsGrowth": 57.14, "profitGrowth": 88.21, "peg": 0.464686543475796, "interestGrowth": 51.76, "peg2": 0.791924265842349, "ce5y": -1.1, "ce5r": -30.97, "fcf": 17.14, "ncf": -1.67, "revenue": 190.46, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 6.84, "change": 1.79, "high": 6.88, "low": 6.65, "volume": 142284963.0, "distLow": -0.7, "distHigh": -4.2, "position": "below", "freshness": "fresh"}, {"name": "中欣氟材", "pivot": 18.13, "lowBuy": 18.6739, "highBuy": 19.420856, "hitValue": 5, "theme": "氟化工", "pe": 417.52, "revGrowth": -12.63, "epsGrowth": -300, "profitGrowth": -329.39, "peg": -1.26755517775282, "interestGrowth": -350.31, "peg2": -1.19185863949074, "ce5y": 0.36, "ce5r": -0.23, "fcf": -1.75, "ncf": 1.19, "revenue": 3.11, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 17.15, "change": 2.57, "high": 17.28, "low": 16.61, "volume": 6341200.0, "distLow": -8.2, "distHigh": -11.7, "position": "below", "freshness": "warn"}, {"name": "太辰光", "pivot": 106.3, "lowBuy": 109.489, "highBuy": 113.86856, "hitValue": 10, "theme": "光通信", "pe": 122.39, "revGrowth": -8.04, "epsGrowth": -17.14, "profitGrowth": 31.14, "peg": 3.93031470777135, "interestGrowth": -17.99, "peg2": -6.80322401334075, "ce5y": 0.48, "ce5r": -57.1, "fcf": 1.52, "ncf": 6.37, "revenue": 3.41, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 5, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 209.38, "change": 6.11, "high": 212.59, "low": 198.16, "volume": 25084363.0, "distLow": 91.2, "distHigh": 83.9, "position": "far", "freshness": "warn"}, {"name": "通合科技", "pivot": 22.53, "lowBuy": 23.2059, "highBuy": 24.134136, "hitValue": 10, "theme": "AI电源", "pe": 126.06, "revGrowth": 40.19, "epsGrowth": 100, "profitGrowth": 71.38, "peg": 1.76604090781732, "interestGrowth": 78.61, "peg2": 1.60361277191197, "ce5y": 12.91, "ce5r": 8.63, "fcf": 0.36, "ncf": 2.42, "revenue": 2.91, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 32.23, "change": 3.24, "high": 32.7, "low": 30.61, "volume": 11832900.0, "distLow": 38.9, "distHigh": 33.5, "position": "far", "freshness": "warn"}, {"name": "锐科激光", "pivot": 35.22, "lowBuy": 37.12, "highBuy": 38.23, "hitValue": 15, "theme": "光纤设备", "pe": 131.21, "revGrowth": 20.06, "epsGrowth": 133.33, "profitGrowth": 1156.94, "peg": 0.11341123999516, "interestGrowth": 980.75, "peg2": 0.133785368340556, "ce5y": -0.91, "ce5r": 1.59, "fcf": 1.97, "ncf": 8.17, "revenue": 8.59, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 37.17, "change": 5.51, "high": 37.48, "low": 35.35, "volume": 22475315.0, "distLow": 0.1, "distHigh": -2.8, "position": "zone", "freshness": "fresh"}, {"name": "艾华集团", "pivot": 28.83, "lowBuy": 29.96, "highBuy": 30.55, "hitValue": 15, "theme": "电容", "pe": 42.76, "revGrowth": 4.76, "epsGrowth": 0, "profitGrowth": -13.87, "peg": -3.08291276135544, "interestGrowth": -18.82, "peg2": -2.27205100956429, "ce5y": -20.49, "ce5r": -3.11, "fcf": -0.25, "ncf": 10.38, "revenue": 9.89, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 28.38, "change": 4.57, "high": 28.65, "low": 26.95, "volume": 16019656.0, "distLow": -5.3, "distHigh": -7.1, "position": "below", "freshness": "fresh"}, {"name": "烽火通信", "pivot": 38.31, "lowBuy": 39.81, "highBuy": 41.0, "hitValue": 15, "theme": "光纤", "pe": 171.86, "revGrowth": 11.4, "epsGrowth": -40, "profitGrowth": -35.68, "peg": -4.81670403587444, "interestGrowth": -41.06, "peg2": -4.18558207501218, "ce5y": 32.1, "ce5r": 5.78, "fcf": 46.51, "ncf": 18.56, "revenue": 45.1, "scoreImprove": 0, "scoreUnderval": 5, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 42.71, "change": 7.94, "high": 42.88, "low": 38.82, "volume": 157623756.0, "distLow": 7.3, "distHigh": 4.2, "position": "near_above", "freshness": "fresh"}, {"name": "亚康股份", "pivot": 49.1, "lowBuy": 50.573, "highBuy": 52.59592, "hitValue": 10, "theme": "算力", "pe": -52.2884615384615, "revGrowth": 26.87, "epsGrowth": 40, "profitGrowth": 39.08, "peg": -1.3379851980159, "interestGrowth": 12.38, "peg2": -4.22362371069964, "ce5y": 0.94, "ce5r": 1.43, "fcf": 0.69, "ncf": 3.27, "revenue": 3.6, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 59.32, "change": 0.47, "high": 59.5, "low": 58.47, "volume": 3171627.0, "distLow": 17.3, "distHigh": 12.8, "position": "far", "freshness": "warn"}, {"name": "天山电子", "pivot": 16.28, "lowBuy": 16.7684, "highBuy": 17.439136, "hitValue": 10, "theme": "存储（题材）", "pe": 47.41, "revGrowth": 7.6, "epsGrowth": -44.44, "profitGrowth": -45.04, "peg": -1.05261989342806, "interestGrowth": -51.82, "peg2": -0.914897722886916, "ce5y": 3.65, "ce5r": -10.97, "fcf": 0.66, "ncf": 5.42, "revenue": 4.25, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 22.19, "change": 5.22, "high": 22.44, "low": 21.06, "volume": 16002676.0, "distLow": 32.3, "distHigh": 27.2, "position": "far", "freshness": "warn"}, {"name": "兆威机电", "pivot": 92, "lowBuy": 94.76, "highBuy": 98.5504, "hitValue": 10, "theme": "灵巧手", "pe": 111.62, "revGrowth": -2.74, "epsGrowth": -26.08, "profitGrowth": -31.89, "peg": -3.50015678896206, "interestGrowth": -32.93, "peg2": -3.38961433343456, "ce5y": -0.51, "ce5r": 26.85, "fcf": 0.53, "ncf": 20.09, "revenue": 3.57, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "totalScore": 10, "price": 71.55, "change": 0.83, "high": 71.79, "low": 70.01, "volume": 3323284.0, "distLow": -24.5, "distHigh": -27.4, "position": "below", "freshness": "warn"}, {"name": "崇达技术", "pivot": 14.99, "lowBuy": 15.4397, "highBuy": 16.057288, "hitValue": 5, "theme": "PCB", "pe": 63.77, "revGrowth": 19.92, "epsGrowth": -72.72, "profitGrowth": -69.87, "peg": -0.912695005009303, "interestGrowth": -75.71, "peg2": -0.842292959978867, "ce5y": -2.37, "ce5r": -0.25, "fcf": -2.48, "ncf": 19.46, "revenue": 19.49, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 14.34, "change": 5.05, "high": 14.48, "low": 13.65, "volume": 45690934.0, "distLow": -7.1, "distHigh": -10.7, "position": "below", "freshness": "warn"}, {"name": "瑞泰新材", "pivot": 19.47, "lowBuy": 20.0541, "highBuy": 20.856264, "hitValue": 10, "theme": "电解液", "pe": 75.62, "revGrowth": 45.49, "epsGrowth": 325, "profitGrowth": -28.84, "peg": -2.62205270457698, "interestGrowth": -53.32, "peg2": -1.41822955738935, "ce5y": 0.28, "ce5r": -4.64, "fcf": 0.67945, "ncf": 52.97, "revenue": 6.77, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 16.49, "change": 1.92, "high": 16.5, "low": 15.89, "volume": 11549743.0, "distLow": -17.8, "distHigh": -20.9, "position": "below", "freshness": "warn"}, {"name": "蓝箭电子", "pivot": 22.64, "lowBuy": 23.3192, "highBuy": 24.251968, "hitValue": 10, "theme": "半导体封装", "pe": -174.125, "revGrowth": 26.64, "epsGrowth": 0, "profitGrowth": 6.54, "peg": -26.6246177370031, "interestGrowth": -16.44, "peg2": 10.5915450121654, "ce5y": 0.14, "ce5r": -0.01, "fcf": 1.59, "ncf": 3.57, "revenue": 1.76, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 21.64, "change": 5.3, "high": 21.64, "low": 20.94, "volume": 12255731.0, "distLow": -7.2, "distHigh": -10.8, "position": "below", "freshness": "warn"}, {"name": "新朋股份", "pivot": 9.54, "lowBuy": 9.8262, "highBuy": 10.219248, "hitValue": 5, "theme": "零部件/储能", "pe": 53.1, "revGrowth": -22.58, "epsGrowth": 180, "profitGrowth": -139.09, "peg": -0.381767201092818, "interestGrowth": -149.15, "peg2": -0.35601743211532, "ce5y": 1.69, "ce5r": 0.82, "fcf": 2.77, "ncf": 14.61, "revenue": 8.01, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 7.76, "change": 4.72, "high": 7.96, "low": 7.34, "volume": 47392777.0, "distLow": -21.0, "distHigh": -24.1, "position": "below", "freshness": "warn"}, {"name": "诺德股份", "pivot": 10.23, "lowBuy": 10.81, "highBuy": 11.13, "hitValue": 15, "theme": "PCB", "pe": -88.5384615384615, "revGrowth": 80.42, "epsGrowth": 200, "profitGrowth": 149.36, "peg": -0.592785628939887, "interestGrowth": 128.94, "peg2": -0.686664041712901, "ce5y": -0.97, "ce5r": 7.24, "fcf": -8.92, "ncf": 17.69, "revenue": 25.43, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 11.6, "change": -0.51, "high": 11.97, "low": 11.2, "volume": 236204442.0, "distLow": 7.3, "distHigh": 4.2, "position": "near_above", "freshness": "fresh"}, {"name": "仙鹤股份", "pivot": 20.44, "lowBuy": 21.0532, "highBuy": 21.895328, "hitValue": 10, "theme": "电容纸", "pe": 17, "revGrowth": 5.88, "epsGrowth": 6.06, "profitGrowth": 3.57, "peg": 4.76190476190476, "interestGrowth": -2.26, "peg2": -7.52212389380531, "ce5y": -13.16, "ce5r": 1.93, "fcf": -1.04, "ncf": -91.72, "revenue": 31.67, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 21.71, "change": 2.6, "high": 21.86, "low": 21.03, "volume": 7230620.0, "distLow": 3.1, "distHigh": -0.8, "position": "zone", "freshness": "warn"}, {"name": "博盈特焊", "pivot": 37.59, "lowBuy": 38.7177, "highBuy": 40.266408, "hitValue": 5, "theme": "燃气轮机", "pe": 137.94, "revGrowth": -17.71, "epsGrowth": -45.45, "profitGrowth": -57.41, "peg": -2.40271729663822, "interestGrowth": -54.21, "peg2": -2.54454897620365, "ce5y": 0.81, "ce5r": -7.05, "fcf": 0.24, "ncf": 10.57, "revenue": 0.873115, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 35.24, "change": 2.14, "high": 35.38, "low": 34.0, "volume": 4597204.0, "distLow": -9.0, "distHigh": -12.5, "position": "below", "freshness": "warn"}, {"name": "中大力德", "pivot": 67.41, "lowBuy": 69.4323, "highBuy": 72.209592, "hitValue": 10, "theme": "机器人", "pe": 256.05, "revGrowth": 5.12, "epsGrowth": -33.33, "profitGrowth": -43.18, "peg": -5.92982862436313, "interestGrowth": -48.28, "peg2": -5.30343827671914, "ce5y": -2.72, "ce5r": 0.18, "fcf": -0.7, "ncf": 0.84, "revenue": 2.42, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "totalScore": 10, "price": 64.52, "change": 1.59, "high": 64.58, "low": 63.11, "volume": 7079318.0, "distLow": -7.1, "distHigh": -10.6, "position": "below", "freshness": "warn"}, {"name": "一博科技", "pivot": 29.83, "lowBuy": 30.7249, "highBuy": 31.953896, "hitValue": 10, "theme": "PCB设计", "pe": 388.8, "revGrowth": 28.16, "epsGrowth": 300, "profitGrowth": 272.69, "peg": 1.42579485863068, "interestGrowth": 245.57, "peg2": 1.58325528362585, "ce5y": 0.33, "ce5r": -2.77, "fcf": -0.43, "ncf": 5.04, "revenue": 3.04, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 56.92, "change": 6.15, "high": 57.0, "low": 53.61, "volume": 9028791.0, "distLow": 85.3, "distHigh": 78.1, "position": "far", "freshness": "warn"}, {"name": "温州宏丰", "pivot": 7.04, "lowBuy": 7.2512, "highBuy": 7.541248, "hitValue": 10, "theme": "合金材料", "pe": 346.27, "revGrowth": 110.3, "epsGrowth": 466.66, "profitGrowth": 450.45, "peg": 0.768720168720169, "interestGrowth": 284.08, "peg2": 1.21891720642073, "ce5y": -6.87, "ce5r": 0.28, "fcf": -0.67, "ncf": -2.97, "revenue": 14.29, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 13.42, "change": 3.47, "high": 13.52, "low": 12.9, "volume": 28358286.0, "distLow": 85.1, "distHigh": 78.0, "position": "far", "freshness": "warn"}, {"name": "东方电子", "pivot": 11.69, "lowBuy": 12.36, "highBuy": 12.73, "hitValue": 20, "theme": "电网/储能", "pe": 19.1, "revGrowth": 8.05, "epsGrowth": 100, "profitGrowth": 9.6, "peg": 1.98958333333333, "interestGrowth": 1.58, "peg2": 12.0886075949367, "ce5y": 1.42, "ce5r": 0.13, "fcf": 6.95, "ncf": 40.09, "revenue": 15.19, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 5, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:49", "buyPointSource": "chanlun_auto", "totalScore": 15, "price": 11.64, "change": -0.26, "high": 11.67, "low": 11.48, "volume": 11117030.0, "distLow": -5.8, "distHigh": -8.6, "position": "below", "freshness": "fresh"}, {"name": "东方国信", "pivot": 12.96, "lowBuy": 13.61, "highBuy": 14.02, "hitValue": 15, "theme": "软件", "pe": -87.1578947368421, "revGrowth": 9.44, "epsGrowth": 0, "profitGrowth": 19.45, "peg": -4.48112569341091, "interestGrowth": 24.68, "peg2": -3.53151923569052, "ce5y": 0.18, "ce5r": -0.2, "fcf": 0.32, "ncf": -11.57, "revenue": 5.48, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 13.17, "change": 2.41, "high": 13.2, "low": 12.82, "volume": 30145450.0, "distLow": -3.2, "distHigh": -6.1, "position": "below", "freshness": "fresh"}, {"name": "双林股份", "pivot": 22.98, "lowBuy": 24.36, "highBuy": 25.09, "hitValue": 15, "theme": "机器人", "pe": 36.22, "revGrowth": -10.42, "epsGrowth": -48.27, "profitGrowth": -17.01, "peg": -2.12933568489124, "interestGrowth": 18.69, "peg2": 1.93793472445158, "ce5y": 0.29, "ce5r": 0.26, "fcf": 4.44, "ncf": 6.07, "revenue": 11.52, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 5, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 21.75, "change": 0.74, "high": 22.39, "low": 21.39, "volume": 6512373.0, "distLow": -10.7, "distHigh": -13.3, "position": "below", "freshness": "fresh"}, {"name": "赛伍技术", "pivot": 14, "lowBuy": 14.42, "highBuy": 14.9968, "hitValue": 10, "theme": "胶材", "pe": -28.3392857142857, "revGrowth": -6.21, "epsGrowth": 62.5, "profitGrowth": 69.39, "peg": -0.408405904514854, "interestGrowth": 65.66, "peg2": -0.431606544536791, "ce5y": 0.86, "ce5r": 0.16, "fcf": -0.55, "ncf": 3.72, "revenue": 6.03, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 11.72, "change": 0.34, "high": 11.78, "low": 11.5, "volume": 6233060.0, "distLow": -18.7, "distHigh": -21.8, "position": "below", "freshness": "warn"}, {"name": "聚飞光电", "pivot": 6.86, "lowBuy": 7.18, "highBuy": 7.5, "hitValue": 15, "theme": "LED", "pe": 41.3, "revGrowth": -4.44, "epsGrowth": -20, "profitGrowth": -48.68, "peg": -0.848397699260476, "interestGrowth": -48.97, "peg2": -0.843373493975904, "ce5y": 2.06, "ce5r": -18.41, "fcf": 4.46, "ncf": 20.33, "revenue": 7.45, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 5, "price": 7.21, "change": 3.0, "high": 7.21, "low": 7.01, "volume": 35437364.0, "distLow": 0.4, "distHigh": -3.9, "position": "zone", "freshness": "fresh"}, {"name": "亚太股份", "pivot": 9.34, "lowBuy": 9.75, "highBuy": 10.24, "hitValue": 15, "theme": "零部件", "pe": 16.53, "revGrowth": 7.91, "epsGrowth": 35.71, "profitGrowth": 33.66, "peg": 0.491087344028521, "interestGrowth": 27.8, "peg2": 0.594604316546763, "ce5y": 0.08, "ce5r": -4.61, "fcf": 11.14, "ncf": 32.19, "revenue": 13.58, "scoreImprove": 5, "scoreUnderval": 5, "scoreExpect": 0, "scoreROE": 5, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 15, "price": 9.8, "change": -0.41, "high": 9.82, "low": 9.69, "volume": 23110881.0, "distLow": 0.5, "distHigh": -4.3, "position": "zone", "freshness": "fresh"}, {"name": "广信材料", "pivot": 20.35, "lowBuy": 20.9605, "highBuy": 21.79892, "hitValue": 5, "theme": "光刻胶", "pe": 396.3, "revGrowth": 7, "epsGrowth": -20, "profitGrowth": -24.66, "peg": -16.0705596107056, "interestGrowth": -30.87, "peg2": -12.8377065111759, "ce5y": -5.56, "ce5r": 10.77, "fcf": -0.36, "ncf": 2.8, "revenue": 1.14, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 0, "totalScore": 0, "price": 20.33, "change": 4.63, "high": 20.49, "low": 19.5, "volume": 8879780.0, "distLow": -3.0, "distHigh": -6.7, "position": "below", "freshness": "warn"}, {"name": "商络电子", "pivot": 24.44, "lowBuy": 25.28, "highBuy": 27.02, "hitValue": 15, "theme": "MLCC", "pe": 103.14, "revGrowth": 106.11, "epsGrowth": 660, "profitGrowth": 600.55, "peg": 0.171742569311465, "interestGrowth": 260.11, "peg2": 0.396524547306909, "ce5y": -1.05, "ce5r": -9.1, "fcf": -11.32, "ncf": 7.27, "revenue": 37.93, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 25.91, "change": 3.39, "high": 26.15, "low": 24.92, "volume": 35956558.0, "distLow": 2.5, "distHigh": -4.1, "position": "zone", "freshness": "fresh"}, {"name": "天洋新材", "pivot": 5.82, "lowBuy": 5.9, "highBuy": 6.62, "hitValue": 15, "theme": "半导体胶材", "pe": -16.3636363636364, "revGrowth": -28.53, "epsGrowth": 200, "profitGrowth": 179.56, "peg": -0.09113185767229, "interestGrowth": 213.89, "peg2": -0.0765049154408172, "ce5y": 0.94, "ce5r": 0.81, "fcf": 0.32, "ncf": 0.78, "revenue": 1.57, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:50", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 10.87, "change": -2.77, "high": 11.48, "low": 10.6, "volume": 103141420.0, "distLow": 84.2, "distHigh": 64.2, "position": "far", "freshness": "fresh"}, {"name": "金禄电子", "pivot": 16.68, "lowBuy": 17.1804, "highBuy": 17.867616, "hitValue": 10, "theme": "PCB（车）", "pe": 59.39, "revGrowth": 33.32, "epsGrowth": -40, "profitGrowth": -40.63, "peg": -1.46172778734925, "interestGrowth": -56.07, "peg2": -1.05921169966114, "ce5y": 2.9, "ce5r": -1.15, "fcf": 0.1, "ncf": 1.9, "revenue": 5.46, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 34.78, "change": 3.3, "high": 35.64, "low": 33.7, "volume": 20195060.0, "distLow": 102.4, "distHigh": 94.7, "position": "far", "freshness": "warn"}, {"name": "珂玛科技", "pivot": 98.72, "lowBuy": 102.33, "highBuy": 105.4, "hitValue": 15, "theme": "半导体材料", "pe": 163.71, "revGrowth": 9.13, "epsGrowth": -45, "profitGrowth": -47.88, "peg": -3.41917293233083, "interestGrowth": -64.69, "peg2": -2.530684804452, "ce5y": 4.75, "ce5r": 9.94, "fcf": 1.39, "ncf": 1.23, "revenue": 2.71, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 5, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:51", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 103.04, "change": 4.09, "high": 103.55, "low": 97.21, "volume": 9315838.0, "distLow": 0.7, "distHigh": -2.2, "position": "zone", "freshness": "fresh"}, {"name": "祥和实业", "pivot": 9.81, "lowBuy": 10.1043, "highBuy": 10.508472, "hitValue": 10, "theme": "电容元器件", "pe": 31.84, "revGrowth": -4.58, "epsGrowth": 9.09, "profitGrowth": 17.28, "peg": 1.84259259259259, "interestGrowth": 24.56, "peg2": 1.29641693811075, "ce5y": 1.6, "ce5r": 1.38, "fcf": 0.97, "ncf": 6.1, "revenue": 1.81, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "totalScore": 10, "price": 9.68, "change": 2.98, "high": 9.95, "low": 9.34, "volume": 9035200.0, "distLow": -4.2, "distHigh": -7.9, "position": "below", "freshness": "warn"}, {"name": "时代新材", "pivot": 11.48, "lowBuy": 12.11, "highBuy": 12.47, "hitValue": 15, "theme": "风电/电容", "pe": 28.4, "revGrowth": 7.25, "epsGrowth": -5.55, "profitGrowth": 36.28, "peg": 0.782800441014333, "interestGrowth": 28.41, "peg2": 0.99964801126364, "ce5y": 0.87, "ce5r": 0.44, "fcf": 12, "ncf": 18.28, "revenue": 44.6, "scoreImprove": 0, "scoreUnderval": 5, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:51", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 11.89, "change": 2.5, "high": 12.01, "low": 11.56, "volume": 17673610.0, "distLow": -1.8, "distHigh": -4.7, "position": "below", "freshness": "fresh"}, {"name": "隆华科技", "pivot": 9.85, "lowBuy": 10.3, "highBuy": 10.76, "hitValue": 15, "theme": "铟/靶材", "pe": 87.08, "revGrowth": 29.74, "epsGrowth": 20, "profitGrowth": 38.18, "peg": 2.2807752750131, "interestGrowth": 7.23, "peg2": 12.0442600276625, "ce5y": -12.44, "ce5r": -55.69, "fcf": 3.26, "ncf": 18.28, "revenue": 8.29, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:51", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 10.58, "change": 3.42, "high": 10.58, "low": 10.08, "volume": 46826065.0, "distLow": 2.7, "distHigh": -1.7, "position": "zone", "freshness": "fresh"}, {"name": "联泓新科", "pivot": 17.98, "lowBuy": 18.5194, "highBuy": 19.260176, "hitValue": 10, "theme": "新材料", "pe": 119.05, "revGrowth": 45.93, "epsGrowth": 120, "profitGrowth": 109.32, "peg": 1.08900475667764, "interestGrowth": 50.18, "peg2": 2.37245914707055, "ce5y": 0.74, "ce5r": 0.09, "fcf": -0.7, "ncf": -66.62, "revenue": 22.46, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 20.05, "change": 1.11, "high": 20.05, "low": 19.62, "volume": 6817301.0, "distLow": 8.3, "distHigh": 4.1, "position": "near_above", "freshness": "warn"}, {"name": "安孚科技", "pivot": 31.61, "lowBuy": 32.5583, "highBuy": 33.860632, "hitValue": 10, "theme": "硅光薄膜", "pe": 119.05, "revGrowth": -3.42, "epsGrowth": 52.94, "profitGrowth": 84, "peg": 1.4172619047619, "interestGrowth": 92.8, "peg2": 1.28286637931034, "ce5y": 0.37, "ce5r": -0.05, "fcf": 9.32, "ncf": 6.6, "revenue": 13.31, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 40.7, "change": 6.27, "high": 40.88, "low": 38.3, "volume": 12076671.0, "distLow": 25.0, "distHigh": 20.2, "position": "far", "freshness": "warn"}, {"name": "华中数控", "pivot": 26.71, "lowBuy": 27.5113, "highBuy": 28.611752, "hitValue": 5, "theme": "工业母机", "pe": -198.94, "revGrowth": 11.39, "epsGrowth": -37, "profitGrowth": -55, "peg": 3.61709090909091, "interestGrowth": -26.6, "peg2": 7.47894736842105, "ce5y": -0.24, "ce5r": -2.44, "fcf": 1.48, "ncf": -4.5, "revenue": 2.26, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 0, "totalScore": 0, "price": 26.78, "change": 1.44, "high": 26.78, "low": 26.11, "volume": 2818800.0, "distLow": -2.7, "distHigh": -6.4, "position": "below", "freshness": "warn"}, {"name": "东材科技", "pivot": 27.4, "lowBuy": 28.222, "highBuy": 29.35088, "hitValue": 10, "theme": "AI上游", "pe": 264.83, "revGrowth": 27.24, "epsGrowth": 80, "profitGrowth": 41.8, "peg": 6.33564593301435, "interestGrowth": 12.08, "peg2": 21.9230132450331, "ce5y": 35.15, "ce5r": 12.06, "fcf": -3.44, "ncf": 1.76, "revenue": 14.44, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 49.1, "change": 9.99, "high": 49.1, "low": 45.15, "volume": 79154407.0, "distLow": 74.0, "distHigh": 67.3, "position": "far", "freshness": "warn"}, {"name": "美畅股份", "pivot": 16.21, "lowBuy": 16.93, "highBuy": 17.76, "hitValue": 15, "theme": "金刚石/光伏", "pe": 66.99, "revGrowth": 39.71, "epsGrowth": 625, "profitGrowth": 918.24, "peg": 0.0729547830632514, "interestGrowth": 861.96, "peg2": 0.0777182235834609, "ce5y": 0.58, "ce5r": -22.69, "fcf": -1.39, "ncf": 19.83, "revenue": 5.91, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:51", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 16.93, "change": 2.86, "high": 16.95, "low": 16.41, "volume": 11823448.0, "distLow": 0.0, "distHigh": -4.7, "position": "zone", "freshness": "fresh"}, {"name": "浙江众成", "pivot": 6.76, "lowBuy": 6.9628, "highBuy": 7.241312, "hitValue": 10, "theme": "新材料", "pe": 109.14, "revGrowth": 11.71, "epsGrowth": 0, "profitGrowth": 8.41, "peg": 12.9774078478002, "interestGrowth": -3.34, "peg2": -32.6766467065868, "ce5y": 0.63, "ce5r": 0.29, "fcf": -0.56, "ncf": 6.01, "revenue": 3.99, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 5.32, "change": 0.38, "high": 5.35, "low": 5.25, "volume": 27062965.0, "distLow": -23.6, "distHigh": -26.5, "position": "below", "freshness": "warn"}, {"name": "领先股份", "pivot": 130.57, "lowBuy": 135.36, "highBuy": 144.08, "hitValue": 15, "theme": "先进封装材料", "pe": 1080.75, "revGrowth": 1649.93, "epsGrowth": 273.68, "profitGrowth": 446.21, "peg": 2.42206584343695, "interestGrowth": 128.48, "peg2": 8.41181506849315, "ce5y": -14.8, "ce5r": 0.91, "fcf": -0.36, "ncf": 6.91, "revenue": 8.96, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:51", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 137.11, "change": 3.03, "high": 137.55, "low": 132.42, "volume": 2460700.0, "distLow": 1.3, "distHigh": -4.8, "position": "zone", "freshness": "fresh"}, {"name": "长飞光纤", "pivot": 336.99, "lowBuy": 347.0997, "highBuy": 360.983688, "hitValue": 10, "theme": "光纤", "pe": 264.83, "revGrowth": 27.7, "epsGrowth": 200, "profitGrowth": 965.93, "peg": 0.274171006180572, "interestGrowth": 882.65, "peg2": 0.300039653316717, "ce5y": 4.43, "ce5r": 9.04, "fcf": 24.6, "ncf": 26.96, "revenue": 36.95, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 426.82, "change": 10.0, "high": 426.82, "low": 393.0, "volume": 14757480.0, "distLow": 23.0, "distHigh": 18.2, "position": "far", "freshness": "warn"}, {"name": "莱宝高科", "pivot": 9.96, "lowBuy": 10.2588, "highBuy": 10.669152, "hitValue": 10, "theme": "玻璃基板", "pe": 43.63, "revGrowth": -1.5, "epsGrowth": -54.54, "profitGrowth": -54.41, "peg": -0.801874655394229, "interestGrowth": -55.12, "peg2": -0.791545718432511, "ce5y": -1.21, "ce5r": -0.86, "fcf": 1.08, "ncf": 2.38, "revenue": 14.51, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 10.52, "change": 2.14, "high": 10.56, "low": 10.24, "volume": 12349084.0, "distLow": 2.5, "distHigh": -1.4, "position": "zone", "freshness": "warn"}, {"name": "先导基电", "pivot": 17.6, "lowBuy": 18.128, "highBuy": 18.85312, "hitValue": 10, "theme": "靶材", "pe": -277.538461538462, "revGrowth": 178.17, "epsGrowth": 0, "profitGrowth": -347.95, "peg": 0.79763891805852, "interestGrowth": -69.63, "peg2": 3.98590351196987, "ce5y": -1.35, "ce5r": 0.0008, "fcf": -42.33, "ncf": 10.65, "revenue": 5.35, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 34.0, "change": 10.0, "high": 34.0, "low": 30.92, "volume": 59992137.0, "distLow": 87.6, "distHigh": 80.3, "position": "far", "freshness": "warn"}, {"name": "中密控股", "pivot": 28.25, "lowBuy": 29.96, "highBuy": 30.86, "hitValue": 15, "theme": "核电", "pe": 16.29, "revGrowth": -3.05, "epsGrowth": -28.26, "profitGrowth": -28.09, "peg": -0.579921680313279, "interestGrowth": -32.26, "peg2": -0.504959702417855, "ce5y": 1.31, "ce5r": 21.03, "fcf": 3.49, "ncf": 6.43, "revenue": 3.98, "scoreImprove": 0, "scoreUnderval": 5, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:51", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 27.71, "change": -0.04, "high": 27.77, "low": 27.35, "volume": 1702730.0, "distLow": -7.5, "distHigh": -10.2, "position": "below", "freshness": "fresh"}, {"name": "泰和新材", "pivot": 9.19, "lowBuy": 9.4657, "highBuy": 9.844328, "hitValue": 10, "theme": "芳纶/光纤上游", "pe": 399.95, "revGrowth": -0.61, "epsGrowth": 100, "profitGrowth": -199.37, "peg": -2.00606911772082, "interestGrowth": -200, "peg2": -1.99975, "ce5y": 0.15, "ce5r": -0.28, "fcf": -5.68, "ncf": 10.76, "revenue": 10.51, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 12.77, "change": 3.99, "high": 12.77, "low": 12.23, "volume": 21358596.0, "distLow": 34.9, "distHigh": 29.7, "position": "far", "freshness": "warn"}, {"name": "天味食品", "pivot": 13.33, "lowBuy": 14.09, "highBuy": 14.51, "hitValue": 15, "theme": "调味料", "pe": 24.57, "revGrowth": 76.19, "epsGrowth": 242.85, "profitGrowth": 360.44, "peg": 0.0681666851625791, "interestGrowth": 222.47, "peg2": 0.110441857329078, "ce5y": 0.59, "ce5r": 0.52, "fcf": 4.79, "ncf": 32.16, "revenue": 11.3, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:51", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 13.4, "change": 1.21, "high": 13.5, "low": 13.15, "volume": 9630765.0, "distLow": -4.9, "distHigh": -7.6, "position": "below", "freshness": "fresh"}, {"name": "亚威股份", "pivot": 10.19, "lowBuy": 10.4957, "highBuy": 10.915528, "hitValue": 10, "theme": "半导体设备", "pe": 72.75, "revGrowth": -2.37, "epsGrowth": -14.28, "profitGrowth": -8.96, "peg": -8.11941964285714, "interestGrowth": -9.17, "peg2": -7.93347873500545, "ce5y": 21.29, "ce5r": 47.16, "fcf": 2.26, "ncf": 7.84, "revenue": 4.56, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 9.2, "change": 2.0, "high": 9.24, "low": 8.99, "volume": 16317020.0, "distLow": -12.3, "distHigh": -15.7, "position": "below", "freshness": "warn"}, {"name": "新安股份", "pivot": 10.33, "lowBuy": 10.6399, "highBuy": 11.065496, "hitValue": 15, "theme": "农药/有机硅", "pe": 139.96, "revGrowth": 250, "epsGrowth": -14.28, "profitGrowth": 441.38, "peg": 0.317096379536907, "interestGrowth": 414.49, "peg2": 0.337667977514536, "ce5y": 0.13, "ce5r": -4.08, "fcf": 2.26, "ncf": 1.18, "revenue": 40.83, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 10.89, "change": 3.81, "high": 10.93, "low": 10.44, "volume": 37553934.0, "distLow": 2.4, "distHigh": -1.6, "position": "zone", "freshness": "warn"}, {"name": "丰立智能", "pivot": 41.04, "lowBuy": 42.2712, "highBuy": 43.962048, "hitValue": 5, "theme": "机器人", "pe": -182.541666666667, "revGrowth": 9.17, "epsGrowth": -200, "profitGrowth": -92.61, "peg": 1.97107943706584, "interestGrowth": -93.31, "peg2": 1.95629264458972, "ce5y": 0.13, "ce5r": -3.06, "fcf": 2.26, "ncf": -0.35, "revenue": 1.27, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 3, "totalScore": 5, "price": 38.58, "change": 0.36, "high": 38.87, "low": 38.01, "volume": 1275880.0, "distLow": -8.7, "distHigh": -12.2, "position": "below", "freshness": "warn"}, {"name": "特发信息", "pivot": 17.88, "lowBuy": 18.4164, "highBuy": 19.153056, "hitValue": 10, "theme": "光纤", "pe": -31.9642857142857, "revGrowth": 5.06, "epsGrowth": -100, "profitGrowth": -2.19, "peg": 14.5955642530985, "interestGrowth": -2.89, "peg2": 11.0603064755314, "ce5y": 34.71, "ce5r": 0.91, "fcf": -0.89, "ncf": 4, "revenue": 8.3, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 16.5, "change": 3.9, "high": 16.74, "low": 15.91, "volume": 114655992.0, "distLow": -10.4, "distHigh": -13.9, "position": "below", "freshness": "warn"}, {"name": "华康洁净", "pivot": 28.53, "lowBuy": 29.3859, "highBuy": 30.561336, "hitValue": 15, "theme": "洁净室", "pe": 64.17, "revGrowth": 37.32, "epsGrowth": 40.74, "profitGrowth": 34.53, "peg": 1.85838401390096, "interestGrowth": 50.68, "peg2": 1.26617995264404, "ce5y": -25.46, "ce5r": -0.24, "fcf": -1.43, "ncf": -5.06, "revenue": 4.05, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 46.88, "change": 2.56, "high": 47.27, "low": 44.3, "volume": 12519777.0, "distLow": 59.5, "distHigh": 53.4, "position": "far", "freshness": "warn"}, {"name": "达利凯普", "pivot": 27.52, "lowBuy": 28.89, "highBuy": 30.01, "hitValue": 20, "theme": "MLCC", "pe": 79.96, "revGrowth": 13.88, "epsGrowth": 0, "profitGrowth": 13.02, "peg": 6.14132104454685, "interestGrowth": -1.5, "peg2": -53.3066666666667, "ce5y": 3.41, "ce5r": 108.34, "fcf": 1.29, "ncf": 9.63, "revenue": 1.15, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:49", "buyPointSource": "chanlun_auto", "totalScore": 10, "price": 25.45, "change": 4.09, "high": 25.68, "low": 24.45, "volume": 19441859.0, "distLow": -11.9, "distHigh": -15.2, "position": "below", "freshness": "fresh"}, {"name": "恒星科技", "pivot": 3.31, "lowBuy": 3.4093, "highBuy": 3.545672, "hitValue": 15, "theme": "有机硅", "pe": 415.07, "revGrowth": 10.39, "epsGrowth": 400, "profitGrowth": 2314.59, "peg": 0.17932765630198, "interestGrowth": 2200.38, "peg2": 0.188635599305574, "ce5y": 11.26, "ce5r": 108.34, "fcf": -0.28, "ncf": 3.69, "revenue": 12.33, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 4.57, "change": 1.56, "high": 4.62, "low": 4.45, "volume": 104845234.0, "distLow": 34.0, "distHigh": 28.9, "position": "far", "freshness": "warn"}, {"name": "双环传动", "pivot": 38.69, "lowBuy": 39.8507, "highBuy": 41.444728, "hitValue": 10, "theme": "机器人", "pe": 31.68, "revGrowth": 1.49, "epsGrowth": 0, "profitGrowth": -4.08, "peg": -7.76470588235294, "interestGrowth": -6.66, "peg2": -4.75675675675676, "ce5y": 0.74, "ce5r": 5.2, "fcf": 23.34, "ncf": 24.32, "revenue": 20.95, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 35.79, "change": 0.53, "high": 35.87, "low": 35.35, "volume": 12840030.0, "distLow": -10.2, "distHigh": -13.6, "position": "below", "freshness": "warn"}, {"name": "华灿光电", "pivot": 9.11, "lowBuy": 9.3833, "highBuy": 9.758632, "hitValue": 10, "theme": "玻璃基板", "pe": -99.7222222222222, "revGrowth": 109.74, "epsGrowth": 150, "profitGrowth": 127.92, "peg": -0.7795670905427, "interestGrowth": 115.25, "peg2": -0.86526873945529, "ce5y": -12.29, "ce5r": 0.08, "fcf": -15.38, "ncf": -18.93, "revenue": 22.21, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 12.03, "change": 3.0, "high": 12.21, "low": 11.52, "volume": 80550202.0, "distLow": 28.2, "distHigh": 23.3, "position": "far", "freshness": "warn"}, {"name": "中兵红箭", "pivot": 14.66, "lowBuy": 15.53, "highBuy": 16.0, "hitValue": 20, "theme": "超硬材料", "pe": 682.65, "revGrowth": 144.44, "epsGrowth": 150, "profitGrowth": 142.48, "peg": 4.79119876473891, "interestGrowth": 119.03, "peg2": 5.73510879610182, "ce5y": 0.5, "ce5r": 7.32, "fcf": -0.59, "ncf": 62.13, "revenue": 17.43, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "buyPointUpdated": "2026-08-26T19:46:49", "buyPointSource": "chanlun_auto", "totalScore": 15, "price": 14.37, "change": 2.06, "high": 14.37, "low": 13.98, "volume": 29942420.0, "distLow": -7.5, "distHigh": -10.2, "position": "below", "freshness": "fresh"}, {"name": "振江股份", "pivot": 19.63, "lowBuy": 20.2189, "highBuy": 21.027656, "hitValue": 10, "theme": "风电/燃气轮机", "pe": 77.95, "revGrowth": 58.87, "epsGrowth": 1666, "profitGrowth": 31.14, "peg": 2.50321130378934, "interestGrowth": -17.99, "peg2": -4.33296275708727, "ce5y": 0.36, "ce5r": 1.04, "fcf": -61.16, "ncf": -0.37, "revenue": 14.89, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 23.59, "change": 2.12, "high": 23.68, "low": 22.82, "volume": 7092597.0, "distLow": 16.7, "distHigh": 12.2, "position": "far", "freshness": "warn"}, {"name": "泰和科技", "pivot": 23.88, "lowBuy": 24.5964, "highBuy": 25.580256, "hitValue": 15, "theme": "化工", "pe": 75.86, "revGrowth": 11.66, "epsGrowth": 207.69, "profitGrowth": 236.88, "peg": 0.320246538331645, "interestGrowth": 231.57, "peg2": 0.327589929610917, "ce5y": 0.01, "ce5r": -20.3, "fcf": 0.65, "ncf": 5.71, "revenue": 7.3, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "totalScore": 15, "price": 23.13, "change": 1.98, "high": 23.22, "low": 22.41, "volume": 4325357.0, "distLow": -6.0, "distHigh": -9.6, "position": "below", "freshness": "warn"}, {"name": "九丰能源", "pivot": 32.71, "lowBuy": 33.6913, "highBuy": 35.038952, "hitValue": 10, "theme": "能源/氦气", "pe": 18.79, "revGrowth": -17.98, "epsGrowth": -21.25, "profitGrowth": -16.02, "peg": -1.1729088639201, "interestGrowth": 3.7, "peg2": 5.07837837837838, "ce5y": 4.81, "ce5r": -263, "fcf": 16.34, "ncf": 35.33, "revenue": 44.98, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 3, "totalScore": 5, "price": 35.24, "change": 1.41, "high": 35.32, "low": 34.62, "volume": 6338188.0, "distLow": 4.6, "distHigh": 0.6, "position": "near_above", "freshness": "warn"}, {"name": "中晶科技", "pivot": 28.76, "lowBuy": 29.6228, "highBuy": 30.807712, "hitValue": 10, "theme": "硅材", "pe": 151.26, "revGrowth": 18.5, "epsGrowth": 120, "profitGrowth": 104.94, "peg": 1.44139508290452, "interestGrowth": 83.88, "peg2": 1.8032904148784, "ce5y": -0.45, "ce5r": -2.83, "fcf": 0.514468, "ncf": -1.41, "revenue": 1.18, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 29.75, "change": 3.88, "high": 29.96, "low": 28.51, "volume": 6040515.0, "distLow": 0.4, "distHigh": -3.4, "position": "zone", "freshness": "warn"}, {"name": "奔图科技", "pivot": 12.8, "lowBuy": 13.184, "highBuy": 13.71136, "hitValue": 10, "theme": "打印耗材", "pe": -31.25, "revGrowth": -61.36, "epsGrowth": -16.66, "profitGrowth": -59.12, "peg": 0.528585926928281, "interestGrowth": 4.45, "peg2": -7.02247191011236, "ce5y": 0.08, "ce5r": 0.36, "fcf": 3.12, "ncf": 10.89, "revenue": 22.9, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 5, "buySignal": 5, "totalScore": 10, "price": 17.41, "change": 3.57, "high": 17.6, "low": 16.97, "volume": 11870954.0, "distLow": 32.1, "distHigh": 27.0, "position": "far", "freshness": "warn"}, {"name": "万泽股份", "pivot": 12.97, "lowBuy": 13.3591, "highBuy": 13.893464, "hitValue": 5, "theme": "燃气轮机", "pe": 67.81, "revGrowth": 7.39, "epsGrowth": 0, "profitGrowth": 4.02, "peg": 16.8681592039801, "interestGrowth": -6.8, "peg2": -9.97205882352941, "ce5y": 0.77, "ce5r": 0.36, "fcf": 1.13, "ncf": -9.07, "revenue": 3.6, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 3, "totalScore": 5, "price": 23.8, "change": -1.29, "high": 24.12, "low": 23.56, "volume": 12365600.0, "distLow": 78.2, "distHigh": 71.3, "position": "far", "freshness": "warn"}, {"name": "华阳集团", "pivot": 22.5, "lowBuy": 23.175, "highBuy": 24.102, "hitValue": 10, "theme": "HUD/光模块", "pe": 17.04, "revGrowth": 24.37, "epsGrowth": 6.7, "profitGrowth": 6, "peg": 2.84, "interestGrowth": -16.35, "peg2": -1.04220183486239, "ce5y": 0.74, "ce5r": 16.17, "fcf": 10.57, "ncf": 8.02, "revenue": 30.96, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 5, "buySignal": 5, "totalScore": 10, "price": 26.74, "change": -0.04, "high": 26.97, "low": 26.13, "volume": 16211975.0, "distLow": 15.4, "distHigh": 10.9, "position": "far", "freshness": "warn"}, {"name": "宏达电子", "pivot": 40.1, "lowBuy": 41.303, "highBuy": 42.95512, "hitValue": 5, "theme": "MLCC", "pe": 48.33, "revGrowth": 11.68, "epsGrowth": 76.92, "profitGrowth": 90.33, "peg": 0.535038193291265, "interestGrowth": 82.43, "peg2": 0.586315661773626, "ce5y": 0.74, "ce5r": 16.17, "fcf": 2.23, "ncf": 16.19, "revenue": 3.67, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 54.95, "change": 7.75, "high": 54.95, "low": 50.94, "volume": 11565704.0, "distLow": 33.0, "distHigh": 27.9, "position": "far", "freshness": "warn"}, {"name": "阿石创", "pivot": 15.71, "lowBuy": 16.1813, "highBuy": 16.828552, "hitValue": 5, "theme": "靶材", "pe": -205.5, "revGrowth": 41.61, "epsGrowth": 650, "profitGrowth": 365.24, "peg": -0.562643741101741, "interestGrowth": 302.68, "peg2": -0.67893484868508, "ce5y": 0.07, "ce5r": 5.06, "fcf": -0.62, "ncf": 2.36, "revenue": 4.26, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 52.72, "change": 4.21, "high": 53.37, "low": 49.9, "volume": 9365380.0, "distLow": 225.8, "distHigh": 213.3, "position": "far", "freshness": "warn"}, {"name": "新广益", "pivot": 49.3, "lowBuy": 50.779, "highBuy": 52.81016, "hitValue": 10, "theme": "复合材料", "pe": 59.34, "revGrowth": 5.22, "epsGrowth": -18.18, "profitGrowth": 7.91, "peg": 7.50189633375474, "interestGrowth": 0.08, "peg2": 741.75, "ce5y": 1.11, "ce5r": 0, "fcf": 0.82, "ncf": 10.04, "revenue": 1.49, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 0, "scoreDiverg": 0, "buySignal": 3, "totalScore": 5, "price": 51.03, "change": 3.72, "high": 51.16, "low": 48.52, "volume": 3069876.0, "distLow": 0.5, "distHigh": -3.4, "position": "zone", "freshness": "warn"}, {"name": "博通集成", "pivot": 30.7, "lowBuy": 31.621, "highBuy": 32.88584, "hitValue": 15, "theme": "端侧芯片", "pe": 279.24, "revGrowth": 87.77, "epsGrowth": 0, "profitGrowth": 414.06, "peg": 0.674395015215186, "interestGrowth": 188.72, "peg2": 1.47965239508266, "ce5y": 0.03, "ce5r": 4.06, "fcf": 0.51, "ncf": 11.37, "revenue": 3.11, "scoreImprove": 5, "scoreUnderval": 0, "scoreExpect": 0, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 36.45, "change": 0.05, "high": 36.76, "low": 35.85, "volume": 9137388.0, "distLow": 15.3, "distHigh": 10.8, "position": "far", "freshness": "warn"}, {"name": "甘李药业", "pivot": 59.46, "lowBuy": 61.2438, "highBuy": 63.693552, "hitValue": 15, "theme": "创新药/胰岛素", "pe": 38.94, "revGrowth": 87.77, "epsGrowth": -37.73, "profitGrowth": -13.48, "peg": -2.88872403560831, "interestGrowth": -6.2, "peg2": -6.28064516129032, "ce5y": 0.59, "ce5r": -1.84, "fcf": 4.81, "ncf": 34.16, "revenue": 8.78, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 5, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 71.38, "change": 0.11, "high": 72.99, "low": 70.2, "volume": 9478763.0, "distLow": 16.6, "distHigh": 12.1, "position": "far", "freshness": "warn"}, {"name": "电连技术", "pivot": 41.03, "lowBuy": 42.2609, "highBuy": 43.951336, "hitValue": 15, "theme": "npo/电连接器", "pe": 79.1, "revGrowth": 7.62, "epsGrowth": 0, "profitGrowth": -0.84, "peg": -94.1666666666667, "interestGrowth": -6.9, "peg2": -11.463768115942, "ce5y": 0.59, "ce5r": -1.84, "fcf": 4.81, "ncf": 34.16, "revenue": 8.78, "scoreImprove": 0, "scoreUnderval": 0, "scoreExpect": 5, "scoreROE": 0, "scoreTrend": 5, "scoreDiverg": 0, "buySignal": 5, "totalScore": 10, "price": 52.6, "change": 4.82, "high": 53.75, "low": 49.46, "volume": 31895243.0, "distLow": 24.5, "distHigh": 19.7, "position": "far", "freshness": "warn"}];
+
+// ===== Tab Switching =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+  // Load data for tab on first visit
+  if (tab === 'daily' && !window._dailyLoaded) { loadDailyData(); window._dailyLoaded = true; }
+  if (tab === 'research' && !window._researchLoaded) { loadResearchData(); window._researchLoaded = true; }
+  if (tab === 'trading' && !window._tradingLoaded) { loadTradingData(); window._tradingLoaded = true; }
+}
+
+// ===== Header Stats =====
+function updateHeaderStats() {
+  const valid = STOCKS.filter(s => s.price != null);
+  document.getElementById('hTotal').textContent = valid.length;
+  document.getElementById('hSignals').textContent = valid.filter(s => s.buySignal === 5 && (s.totalScore||0) >= 10).length;
+  document.getElementById('hZone').textContent = valid.filter(s => s.position === 'zone').length;
+  // Approximate bullish count from pool data
+  let bullCount = 0;
+  valid.forEach(s => {
+    if (s.price && s.lowBuy && s.distLow != null) {
+      if (s.distLow > 0 && s.change > 0) bullCount++;
+    }
+  });
+  document.getElementById('hBull').textContent = bullCount;
+  document.getElementById('hTime').textContent = new Date().toLocaleString('zh-CN', {hour12:false}).slice(0,19);
+  // Data freshness: count stale buy points
+  const staleCount = STOCKS.filter(s => s.name !== '当季' && (s.freshness === 'warn' || s.freshness === 'critical' || s.freshness === 'error')).length;
+  const hStale = document.getElementById('hStale');
+  if (hStale) {
+    hStale.textContent = staleCount;
+    hStale.className = 'value ' + (staleCount > 50 ? 'red' : staleCount > 20 ? 'gold' : 'green');
+  }
+}
+
+// ===== Stock Pool Table (TAB 1) =====
+let sortCol='hitValue',sortDir=-1;
+const themes=[...new Set(STOCKS.map(s=>s.theme).filter(Boolean))].sort();
+const ts=document.getElementById('themeFilter');
+themes.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;ts.appendChild(o)});
+
+function fmt(v,d=2){return v==null?'-':Number(v).toFixed(d)}
+function scoreDots(vals){return vals.map(v=>`<span class="score-bar ${v?'score-on':'score-off'}"></span>`).join('')}
+function posLabel(s){
+  const p=s.position;
+  if(p==='zone') return '<span class="pos-badge pos-zone">★ 买点区间</span>';
+  if(p==='below') return '<span class="pos-badge pos-below">↓ 低于买点</span>';
+  if(p==='near_above') return '<span class="pos-badge pos-near">↑ 略高</span>';
+  if(p==='far') return '<span class="pos-badge pos-far">远离</span>';
+  return '-';
+}
+
+function renderTable(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const sigF=document.getElementById('signalFilter').value;
+  const themeF=document.getElementById('themeFilter').value;
+  const posF=document.getElementById('posFilter').value;
+  let filtered=STOCKS.filter(s=>{
+    if(s.name==='当季')return false;
+    if(search&&!s.name.toLowerCase().includes(search)&&!(s.theme||'').toLowerCase().includes(search))return false;
+    if(sigF!=='all'&&String(s.buySignal)!==sigF)return false;
+    if(themeF!=='all'&&s.theme!==themeF)return false;
+    if(posF!=='all'&&s.position!==posF)return false;
+    return true;
+  });
+  filtered.sort((a,b)=>{
+    let va=a[sortCol]||0,vb=b[sortCol]||0;
+    if(typeof va==='string')return sortDir*va.localeCompare(vb);
+    return sortDir*((va||0)-(vb||0));
+  });
+  const tbody=document.getElementById('stockBody');
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="16" style="text-align:center;padding:40px;color:var(--text2)">无匹配标的</td></tr>';return}
+  tbody.innerHTML=filtered.map(s=>{
+    const isSig=s.buySignal===5&&(s.totalScore||0)>=10;
+    const inZone=s.position==='zone'||(s.position==='below'&&s.distLow!=null&&s.distLow>-10);
+    const chgCls=s.change>0?'positive':(s.change<0?'negative':'');
+    const peCls=s.pe>0&&s.pe<30?'positive':(s.pe>80?'negative':'');
+    const revCls=s.revGrowth>20?'positive':(s.revGrowth<0?'negative':'');
+    const profCls=s.profitGrowth>20?'positive':(s.profitGrowth<0?'negative':'');
+    const dlCls=s.distLow!=null?(Math.abs(s.distLow)<3?'price-near':(s.distLow>0?'price-far':'price-mid')):'';
+    const dhCls=s.distHigh!=null?(Math.abs(s.distHigh)<3?'price-near':(s.distHigh>0?'price-far':'price-mid')):'';
+    const freshIcon = s.freshness==='critical'?'<span title="买点严重过期" style="color:var(--red)">⛔</span>':
+                      s.freshness==='warn'?'<span title="买点数据过期" style="color:var(--gold)">⚠</span>':
+                      s.freshness==='error'?'<span title="无买点数据" style="color:var(--red)">❌</span>':'';
+    return `<tr class="${isSig?'signal-active':(inZone?'in-zone':'')}">
+      <td class="stock-name">${isSig?'🔥 ':''}${freshIcon}${s.name}</td>
+      <td><span class="theme-tag">${s.theme||'-'}</span></td>
+      <td>${s.price?s.price.toFixed(2):'<span style="color:var(--text2)">-</span>'}</td>
+      <td class="${chgCls}">${s.change!=null?(s.change>0?'+':'')+s.change.toFixed(2)+'%':'-'}</td>
+      <td>${fmt(s.lowBuy)}</td>
+      <td>${fmt(s.highBuy)}</td>
+      <td class="${dlCls}">${s.distLow!=null?(s.distLow>0?'+':'')+s.distLow+'%':'-'}</td>
+      <td class="${dhCls}">${s.distHigh!=null?(s.distHigh>0?'+':'')+s.distHigh+'%':'-'}</td>
+      <td>${posLabel(s)}</td>
+      <td style="font-weight:bold;color:var(--gold)">${s.hitValue||'-'}</td>
+      <td class="${peCls}">${s.pe?fmt(s.pe,1):'-'}</td>
+      <td class="${revCls}">${s.revGrowth?fmt(s.revGrowth,1)+'%':'-'}</td>
+      <td class="${profCls}">${s.profitGrowth?fmt(s.profitGrowth,1)+'%':'-'}</td>
+      <td>${s.peg?fmt(s.peg,2):'-'}</td>
+      <td title="改善${s.scoreImprove||0} 低估${s.scoreUnderval||0} 预期${s.scoreExpect||0} ROE${s.scoreROE||0} 趋势${s.scoreTrend||0} 背驰${s.scoreDiverg||0}">${scoreDots([s.scoreImprove,s.scoreUnderval,s.scoreExpect,s.scoreROE,s.scoreTrend,s.scoreDiverg])} <small>${s.totalScore||0}</small></td>
+      <td>${isSig?'<span class="signal-badge signal-yes">🔥 买入</span>':'<span class="signal-badge signal-no">-</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.querySelectorAll('th[data-col]').forEach(th=>{
+  th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=-1}
+    renderTable();
+  });
+});
+document.getElementById('sortPreset').addEventListener('change',function(){
+  if(!this.value)return;sortCol=this.value;sortDir=['pe','distLow'].includes(this.value)?1:-1;renderTable();
+});
+document.getElementById('searchInput').addEventListener('input',renderTable);
+document.getElementById('signalFilter').addEventListener('change',renderTable);
+document.getElementById('themeFilter').addEventListener('change',renderTable);
+document.getElementById('posFilter').addEventListener('change',renderTable);
+function resetFilters(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('signalFilter').value='all';
+  document.getElementById('themeFilter').value='all';
+  document.getElementById('posFilter').value='all';
+  document.getElementById('sortPreset').value='';
+  sortCol='hitValue';sortDir=-1;renderTable();
+}
+
+// ===== TAB 2: Daily Report (超能干) =====
+function loadDailyData() {
+  const now = new Date().toLocaleString('zh-CN', {hour12:false}).slice(0,19);
+  document.getElementById('dailyTime').textContent = now;
+
+  const valid = STOCKS.filter(s => s.price != null && s.name !== '当季');
+
+  // 1. Data Quality Dashboard
+  const totalStocks = STOCKS.filter(s => s.name !== '当季').length;
+  const withPrice = valid.length;
+  const withBuyPoints = valid.filter(s => s.lowBuy && s.highBuy).length;
+  const withScores = valid.filter(s => s.totalScore > 0).length;
+  const withSignals = valid.filter(s => s.buySignal === 5).length;
+  const effectiveSignals = valid.filter(s => s.buySignal === 5 && (s.totalScore||0) >= 10).length;
+  const noCode = valid.filter(s => !s.code).length;
+  const deepBelow = valid.filter(s => s.distLow != null && s.distLow < -10);
+
+  let dqHTML = '<div class="data-quality-bar">';
+  dqHTML += `<div class="dq-item dq-ok">✅ 行情覆盖: ${withPrice}/${totalStocks}</div>`;
+  dqHTML += `<div class="dq-item ${withBuyPoints===withPrice?'dq-ok':'dq-warn'}">📍 买点数据: ${withBuyPoints}/${withPrice}</div>`;
+  dqHTML += `<div class="dq-item dq-ok">📊 评分覆盖: ${withScores}/${withPrice}</div>`;
+  dqHTML += `<div class="dq-item ${effectiveSignals>0?'dq-ok':'dq-warn'}">🔥 有效信号: ${effectiveSignals}(评分≥10)</div>`;
+  dqHTML += `<div class="dq-item ${noCode>5?'dq-err':noCode>0?'dq-warn':'dq-ok'}">🔗 缺失代码: ${noCode}</div>`;
+  dqHTML += `<div class="dq-item ${deepBelow.length>5?'dq-err':'dq-warn'}">📉 深度跌破: ${deepBelow.length}只</div>`;
+  dqHTML += '</div>';
+
+  // Quality score
+  const qualityScore = Math.round((withPrice/totalStocks*30 + withBuyPoints/withPrice*30 + withScores/withPrice*20 + (1-noCode/withPrice)*20));
+  dqHTML += `<div style="margin-top:10px;font-size:14px">数据质量评分: <span style="font-weight:bold;color:${qualityScore>80?'var(--green)':qualityScore>60?'var(--gold)':'var(--red)'}">${qualityScore}/100</span></div>`;
+  document.getElementById('dqDashboard').innerHTML = dqHTML;
+
+  // 2. Signal Summary
+  let sigHTML = '';
+  const sigStocks = valid.filter(s => s.buySignal === 5);
+  if (sigStocks.length === 0) {
+    sigHTML = '<div style="color:var(--text2);padding:12px">今日无买点信号</div>';
+  } else {
+    sigHTML += `<div style="margin-bottom:8px">共 ${sigStocks.length} 只买点信号，其中有效信号(评分≥10) <b class="gold">${effectiveSignals}</b> 只</div>`;
+    sigStocks.forEach(s => {
+      const eff = (s.totalScore||0) >= 10;
+      sigHTML += `<div class="rec-item">
+        <div>
+          <span class="rec-name">${eff?'🔥':'⚪'} ${s.name}</span>
+          <span class="rec-meta">${s.theme||''} · 评分${s.totalScore||0} · 击球值${s.hitValue||'-'}</span>
+        </div>
+        <div style="text-align:right">
+          <div>${s.price?s.price.toFixed(2):'-'}</div>
+          <div class="rec-meta">距低买 ${s.distLow!=null?s.distLow+'%':'-'}</div>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('dailySignals').innerHTML = sigHTML;
+
+  // 3. Buy Point Alerts
+  let alertHTML = '';
+  const nearBuy = valid.filter(s => s.distLow != null && s.distLow > -5 && s.distLow <= 5 && s.position !== 'zone');
+  if (nearBuy.length > 0) {
+    alertHTML += `<div class="alert-box warn"><b>⚠️ ${nearBuy.length}只接近买点(±5%):</b><br>`;
+    nearBuy.slice(0, 8).forEach(s => {
+      alertHTML += `${s.name}(${s.distLow>0?'+':''}${s.distLow}%) `;
+    });
+    alertHTML += '</div>';
+  }
+  const farAbove = valid.filter(s => s.distLow != null && s.distLow > 50);
+  if (farAbove.length > 0) {
+    alertHTML += `<div class="alert-box"><b>📈 ${farAbove.length}只远高于买点(>+50%):</b><br>`;
+    farAbove.slice(0, 8).forEach(s => {
+      alertHTML += `${s.name}(+${s.distLow}%) `;
+    });
+    alertHTML += '</div>';
+  }
+  if (!alertHTML) alertHTML = '<div style="color:var(--text2)">无预警</div>';
+  document.getElementById('dailyAlerts').innerHTML = alertHTML;
+
+  // 4. Deep Below
+  let deepHTML = '';
+  if (deepBelow.length === 0) {
+    deepHTML = '<div style="color:var(--text2)">无深度跌破标的</div>';
+  } else {
+    deepBelow.sort((a,b) => a.distLow - b.distLow);
+    deepHTML += `<div style="margin-bottom:8px;color:var(--red)">⚠️ ${deepBelow.length}只深度跌破买点>10%，需关注是否基本面恶化</div>`;
+    deepBelow.slice(0, 10).forEach(s => {
+      deepHTML += `<div class="rec-item">
+        <div>
+          <span class="rec-name" style="color:var(--red)">${s.name}</span>
+          <span class="rec-meta">${s.theme||''} · 击球值${s.hitValue||'-'}</span>
+        </div>
+        <div style="text-align:right">
+          <div class="red">${s.price?s.price.toFixed(2):'-'}</div>
+          <div class="rec-meta" style="color:var(--red)">距低买 ${s.distLow}%</div>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('dailyDeepBelow').innerHTML = deepHTML;
+
+  // 5. Data freshness monitoring
+  const freshCounts = {fresh:0, warn:0, critical:0, error:0};
+  const staleList = [];
+  STOCKS.forEach(s => {
+    if (s.name === '当季') return;
+    const f = s.freshness || 'fresh';
+    freshCounts[f] = (freshCounts[f]||0) + 1;
+    if (f !== 'fresh') staleList.push({name:s.name, status:f, theme:s.theme||'', lowBuy:s.lowBuy, highBuy:s.highBuy});
+  });
+  const total = freshCounts.fresh + freshCounts.warn + freshCounts.critical + freshCounts.error;
+  const freshPct = total > 0 ? Math.round(freshCounts.fresh / total * 100) : 0;
+  let freshHTML = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+    <div class="dq-item dq-ok">✅ 新鲜: ${freshCounts.fresh} (${freshPct}%)</div>
+    <div class="dq-item dq-warn">⚠ 过期: ${freshCounts.warn}</div>
+    <div class="dq-item dq-err">⛔ 严重过期: ${freshCounts.critical}</div>
+    <div class="dq-item dq-err">❌ 无买点: ${freshCounts.error}</div>
+  </div>`;
+  if (freshPct < 50) {
+    freshHTML += '<div class="alert-box warn" style="margin-bottom:12px">⚠️ <b>买点数据大面积过期！</b> 建议HIT尽快运行 <code>python3 recalc_buy_points.py --top 30</code> 重算买点</div>';
+  }
+  if (staleList.length > 0) {
+    freshHTML += '<table style="width:100%;font-size:11px"><tr><th>标的</th><th>方向</th><th>状态</th><th>低买</th><th>高买</th></tr>';
+    staleList.slice(0, 15).forEach(s => {
+      const sCls = s.status==='critical'?'red':(s.status==='error'?'red':'gold');
+      const sTxt = s.status==='critical'?'⛔ 严重过期':(s.status==='error'?'❌ 无买点':'⚠ 过期');
+      freshHTML += `<tr><td><b>${s.name}</b></td><td><span class="theme-tag">${s.theme}</span></td><td class="${sCls}">${sTxt}</td><td>${s.lowBuy||'-'}</td><td>${s.highBuy||'-'}</td></tr>`;
+    });
+    if (staleList.length > 15) freshHTML += `<tr><td colspan="5" style="text-align:center;color:var(--text2)">...还有${staleList.length-15}只</td></tr>`;
+    freshHTML += '</table>';
+  }
+  document.getElementById('dailyFreshness').innerHTML = freshHTML;
+
+  // 6. Init date picker
+  const datePicker = document.getElementById('dailyDatePicker');
+  if (datePicker) datePicker.value = currentDailyDate;
+  renderDateHistory();
+
+  // 6. Load saved notes
+  loadSavedNotes('daily');
+  loadSavedNotes('teamSummary');
+}
+
+// ===== TAB 3: Research (林奇) =====
+const RESEARCH_DATA = {"section": "research", "owner": "林奇", "updated_at": "2026-08-27T12:00:00", "notes": "## 📊 2026年8月27日 研究日报\n\n**核心观点：**\n1. **AI算力超级周期再确认**：英伟达Q2营收962亿（+106%），FY2028增速指引70%远超预期45%，Vera Rubin全面量产，算力荒至少延续至2028年\n2. **存储芯片黄金时代**：英伟达单季供应商承诺翻倍至2790亿锁定内存，A股存储产业链业绩全面爆发（江波龙净利+71529%）\n3. **新型电力系统五大万亿投资**：两大电网十五五合计近5万亿，储能新增2亿千瓦，特高压/储能/绿电迎密集催化\n4. **苹果折叠屏9月发布**：首款iPhone Ultra定档9月10日，起售价约1.6万元，消费电子链迎主题机会\n\n**今日推荐关注（供李福莫尔技术面验证）：**\n\n| 方向 | 标的 | 逻辑 |\n|------|------|------|\n| AI算力-PCB | 沪电股份 | PCB龙头，H1营收+61%/净利+74% |\n| AI算力-CPO | 天孚通信 | 英伟达唯一点名A股CPO供应商 |\n| 存储芯片 | 大普微 | H1净利+477%，签34.9亿企业级SSD大单 |\n| 端侧AI | 全志科技 | 端侧AI商业化元年，H1净利+204% |\n| 储能/绿电 | 协鑫能科 | 两大电网十五五规划核心受益 |\n\n**风险提示：**\n- ⚠️ 英伟达Q4毛利率触底71-72%，Vera Rubin爬坡期成本扰动\n- ⚠️ 美国PCE通胀3.7%高于预期，联储可能年内加息\n- ⚠️ 今日PCB/CPO涨停潮后高位分化风险\n- ⚠️ 杰克逊霍尔会议沃什周五演讲，关注鹰派信号\n\n> ⚠️ AI生成内容仅供参考，不构成投资建议。", "overseas_stocks": [{"name": "英伟达", "code": "NVDA", "sector": "AI芯片", "price": 209.66, "change": -1.6, "note": "盘后+5%，财报超预期"}, {"name": "超威半导体", "code": "AMD", "sector": "AI芯片/CPU", "price": 0, "change": 4.0, "note": "芯片板块走强"}, {"name": "ARM", "code": "ARM", "sector": "芯片架构", "price": 0, "change": 4.0}, {"name": "迈威尔科技", "code": "MRVL", "sector": "AI网络", "price": 0, "change": 4.0}, {"name": "美光科技", "code": "MU", "sector": "存储", "price": 0, "change": 3.0, "note": "盘后续涨"}, {"name": "苹果", "code": "AAPL", "sector": "消费电子", "price": 0, "change": 1.0, "note": "官宣9/10折叠屏发布会"}, {"name": "Moderna", "code": "MRNA", "sector": "mRNA疫苗", "price": 0, "change": 14.0}, {"name": "CoreWeave", "code": "CRWV", "sector": "AI云服务", "price": 0, "change": 5.0, "note": "盘后大涨"}, {"name": "Nebius", "code": "NBIS", "sector": "AI云服务", "price": 0, "change": 6.0, "note": "盘后大涨"}, {"name": "特斯拉", "code": "TSLA", "sector": "自动驾驶", "price": 0, "change": -1.0}], "policies": [{"tag": "AI算力", "title": "英伟达FY2028增速70%，Vera Rubin量产，算力荒至2028年", "mapping": "沪电股份、天孚通信、中际旭创"}, {"tag": "储能", "title": "国家电网十五五：新增储能1.4亿千瓦，新投产跨区直流15回", "mapping": "协鑫能科、阳光电源、宁德时代"}, {"tag": "战新产业", "title": "上海十五五规划：2030年战新产业增加值达2.1万亿", "mapping": "集成电路、AI、生物医药龙头"}, {"tag": "存储", "title": "集邦预测明年AI基建1.383万亿美元，70%流向DRAM/NAND", "mapping": "江波龙、佰维存储、大普微"}, {"tag": "消费电子", "title": "苹果折叠屏iPhone Ultra定档9月10日，起售价约1.6万元", "mapping": "折叠屏铰链/柔性屏/钛合金"}, {"tag": "核聚变", "title": "上半年国内聚变能融资80亿元，同比+233倍", "mapping": "融发核电、百利电气、久立特材"}], "recommendations": [{"name": "沪电股份", "reason": "PCB龙头，H1营收+61%/净利+74%，英伟达算力链核心受益", "priority": "high", "by": "林奇", "status": "待验证", "note": "需李福莫尔技术面确认"}, {"name": "天孚通信", "reason": "英伟达唯一点名A股CPO供应商，CPO量产元年", "priority": "high", "by": "林奇", "status": "待验证", "note": "需李福莫尔技术面确认"}, {"name": "大普微", "reason": "H1净利+477%，签34.9亿SSD大单，存储涨价弹性", "priority": "high", "by": "林奇", "status": "待验证", "note": "需李福莫尔技术面确认"}, {"name": "全志科技", "reason": "端侧AI芯片龙头，H1净利+204%", "priority": "medium", "by": "林奇", "status": "待验证", "note": "需李福莫尔技术面确认"}, {"name": "协鑫能科", "reason": "绿电运营+储能，两大电网十五五核心受益", "priority": "medium", "by": "林奇", "status": "待验证", "note": "需李福莫尔技术面确认"}, {"name": "新安股份", "reason": "有机硅周期反转+AI液冷从0到1", "priority": "high", "by": "林奇", "status": "双重确认", "note": "延续昨日推荐，基本面已确认"}], "review_notes": "## 📋 8月27日协作备注\n\n1. 今日日报已更新至8月27日，核心催化为英伟达超预期财报\n2. 推荐标的已更新（沪电股份、天孚通信、大普微、全志科技、协鑫能科）\n3. 新安股份延续双重确认状态\n4. 建议李福莫尔关注：PCB/CPO涨停后分化情况，优选有真实订单的核心标的\n5. 本周关注：周五杰克逊霍尔会议沃什演讲\n", "fundamental_reviews": [{"stock": "东方电子", "code": "000682", "reviewer": "林奇", "date": "2026-08-26", "verdict": "observe", "summary": "电网基本盘稳固但质量存疑。H1收入+15.98%但扣非仅+7.76%，非经常性损益占利润20%。经营现金流-7.70亿恶化，毛利率下行1.96pct。储能业务-35%、调度业务-20%拖累。29家机构调研关注现金流和利润质量问题。", "key_metrics": {"revenue_growth": "+15.98%", "deducted_profit_growth": "+7.76%", "operating_cashflow": "-7.70亿", "gross_margin_change": "-1.96pct"}, "risk": "利润质量依赖南网数字股票浮盈，不可持续；现金流持续为负", "recommendation": "建议李福莫尔降低优先级，等待基本面改善信号或回调至更深买点"}, {"stock": "新安股份", "code": "600596", "reviewer": "林奇", "date": "2026-08-26", "verdict": "confirm", "summary": "有机硅周期反转确认，H1净利润+268%、扣非扭亏。AI液冷业务从0到1突破，布局AI线缆/液冷材料/半导体胶黏剂。有机硅出口+36%，作保制剂销量+34%。毛利率从10.78%提升至14.37%。", "key_metrics": {"revenue_growth": "+6.26%", "net_profit_growth": "+268%", "gross_margin_change": "+3.59pct", "silicone_export_growth": "+36%"}, "opportunity": "周期反转+AI液冷新业务双驱动，估值逻辑从周期股向成长股切换", "risk": "财务费用大幅增加（汇兑损失）、子公司盈利分化、应收账款+61%", "recommendation": "基本面确认较强，与李福莫尔买点判断一致（距买点-1.4%），可纳入重点跟踪"}]};
+
+function loadResearchData() {
+  const updatedAt = RESEARCH_DATA.updated_at || '-';
+  document.getElementById('researchTime').textContent = updatedAt;
+
+  // 0. Research Daily Notes (林奇's markdown report)
+  if (RESEARCH_DATA.notes) {
+    const notesEl = document.getElementById('researchNotes');
+    if (notesEl) notesEl.innerHTML = renderMarkdown(RESEARCH_DATA.notes);
+    // Pre-fill edit textarea
+    const editEl = document.getElementById('researchNotesEdit');
+    if (editEl && !editEl.value) editEl.value = RESEARCH_DATA.notes;
+  }
+
+  // 1. Overseas Monitor
+  const overseasData = RESEARCH_DATA.overseas_stocks || [];
+
+  let ovHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+  // US stocks
+  ovHTML += '<div><div style="font-size:11px;color:var(--text2);margin-bottom:6px">🇺🇸 美股科技</div>';
+  overseasData.filter(s => !(s.code||'').includes('HK')).forEach(s => {
+    const cls = s.change > 0 ? 'positive' : (s.change < 0 ? 'negative' : '');
+    const priceStr = s.price ? s.price : '-';
+    ovHTML += `<div class="overseas-row">
+      <span><b>${s.name}</b> <small style="color:var(--text2)">${s.sector}</small></span>
+      <span class="${cls}">${priceStr} (${s.change>0?'+':''}${s.change}%)</span>
+    </div>`;
+  });
+  ovHTML += '</div>';
+  // HK stocks
+  const hkStocks = overseasData.filter(s => (s.code||'').includes('HK'));
+  if (hkStocks.length > 0) {
+    ovHTML += '<div><div style="font-size:11px;color:var(--text2);margin-bottom:6px">🇭🇰 港股科技</div>';
+    hkStocks.forEach(s => {
+      const cls = s.change > 0 ? 'positive' : (s.change < 0 ? 'negative' : '');
+      ovHTML += `<div class="overseas-row">
+        <span><b>${s.name}</b> <small style="color:var(--text2)">${s.sector}</small></span>
+        <span class="${cls}">HK$${s.price||'-'} (${s.change>0?'+':''}${s.change}%)</span>
+      </div>`;
+    });
+    ovHTML += '</div>';
+  }
+  ovHTML += '</div>';
+  ovHTML += '<div style="margin-top:8px;font-size:11px;color:var(--text2)">💡 数据来源：林奇研究 · 更新于 ' + updatedAt + '</div>';
+  document.getElementById('overseasMonitor').innerHTML = ovHTML;
+
+  // 2. Sector Heat Map
+  const valid = STOCKS.filter(s => s.price != null && s.name !== '当季');
+  const sectorMap = {};
+  valid.forEach(s => {
+    const theme = (s.theme || '').split('/')[0].trim();
+    if (!theme) return;
+    if (!sectorMap[theme]) sectorMap[theme] = {count: 0, avgChange: 0, inZone: 0};
+    sectorMap[theme].count++;
+    sectorMap[theme].avgChange += (s.change || 0);
+    if (s.position === 'zone') sectorMap[theme].inZone++;
+  });
+  Object.keys(sectorMap).forEach(k => {
+    sectorMap[k].avgChange = sectorMap[k].avgChange / sectorMap[k].count;
+  });
+
+  let heatHTML = '';
+  const sorted = Object.entries(sectorMap).sort((a,b) => b[1].avgChange - a[1].avgChange);
+  sorted.forEach(([name, data]) => {
+    let cls = 'heat-cold';
+    if (data.avgChange > 2) cls = 'heat-hot';
+    else if (data.avgChange > 0) cls = 'heat-warm';
+    else if (data.avgChange > -2) cls = 'heat-cool';
+    heatHTML += `<span class="sector-heat ${cls}" title="${name}: ${data.count}只, 均涨跌${data.avgChange.toFixed(1)}%, 买点区间${data.inZone}只">${name} ${data.avgChange>0?'+':''}${data.avgChange.toFixed(1)}%</span> `;
+  });
+  document.getElementById('sectorHeat').innerHTML = heatHTML || '<div style="color:var(--text2)">暂无数据</div>';
+
+  // 3. Policy Scan
+  const policies = RESEARCH_DATA.policies || [];
+  let polHTML = '';
+  if (policies.length === 0) {
+    polHTML = '<div style="color:var(--text2)">暂无政策数据</div>';
+  } else {
+    policies.forEach(p => {
+      polHTML += `<div class="policy-item"><span class="tag">${p.tag}</span>${p.title}<br><small style="color:var(--text2)">A股映射: ${p.mapping}</small></div>`;
+    });
+    polHTML += '<div style="margin-top:8px;font-size:11px;color:var(--text2)">💡 政策关键词由林奇研究整理</div>';
+  }
+  document.getElementById('policyScan').innerHTML = polHTML;
+
+  // 4. Research Recommendations
+  const recs = RESEARCH_DATA.recommendations || [];
+  if (recs.length > 0) {
+    let recHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    recs.forEach(r => {
+      const priCls = r.priority === 'high' ? 'background:rgba(220,38,38,0.08);border-left:3px solid var(--red)' : 'background:var(--bg);border-left:3px solid var(--gold)';
+      const priLabel = r.priority === 'high' ? '🔥 高优先' : '📌 中优先';
+      recHTML += `<div style="padding:8px;border-radius:6px;${priCls}">
+        <div style="font-weight:600;color:var(--blue)">${r.name}</div>
+        <div style="font-size:11px;color:var(--text2)">${r.reason}</div>
+        <div style="font-size:10px;margin-top:2px">${priLabel} · ${r.by||'林奇'}</div>
+      </div>`;
+    });
+    recHTML += '</div>';
+    const recContainer = document.getElementById('researchRecs');
+    if (recContainer) recContainer.innerHTML = recHTML;
+  }
+}
+
+// ===== TAB 4: Trading (李福莫尔) =====
+function loadTradingData() {
+  const now = new Date().toLocaleString('zh-CN', {hour12:false}).slice(0,19);
+  document.getElementById('tradingTime').textContent = now;
+
+  // 1. Recommendations
+  const recs = [{"name": "东方电子", "recommender": "李福莫尔", "reason": "击球值20+评分15，距买点-2.2%，电网/储能方向", "date": "2026-08-26", "priority": "high"}, {"name": "新安股份", "recommender": "李福莫尔", "reason": "距买点-1.4%，有机硅周期底部反转", "date": "2026-08-26", "priority": "high"}, {"name": "时代新材", "recommender": "李福莫尔", "reason": "风电/电容，买点附近-2.6%", "date": "2026-08-26", "priority": "medium"}, {"name": "长缆科技", "recommender": "李福莫尔", "reason": "液冷方向，买点区间内，Q3产业拐点", "date": "2026-08-26", "priority": "medium"}, {"name": "中金岭南", "recommender": "李福莫尔", "reason": "多头排列+买点区间内，有色方向", "date": "2026-08-26", "priority": "high"}];
+  let recHTML = '';
+  if (recs.length === 0) {
+    recHTML = '<div style="color:var(--text2)">暂无推荐标的</div>';
+  } else {
+    const priorityOrder = {high: 0, medium: 1, low: 2};
+    recs.sort((a,b) => (priorityOrder[a.priority]||1) - (priorityOrder[b.priority]||1));
+    recs.forEach(r => {
+      const pIcon = {high:'🔴',medium:'🟡',low:'🟢'}[r.priority] || '⚪';
+      const stock = STOCKS.find(s => s.name === r.name);
+      const price = stock ? (stock.price || '-') : '-';
+      const distLow = stock && stock.distLow != null ? stock.distLow + '%' : '-';
+      recHTML += `<div class="rec-item">
+        <div>
+          <span class="rec-name">${pIcon} ${r.name}</span>
+          <div class="rec-reason">${r.reason || ''}</div>
+          <span class="rec-meta">推荐: ${r.recommender} · ${r.date}</span>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:bold">${price}</div>
+          <div class="rec-meta">距低买: ${distLow}</div>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('recList').innerHTML = recHTML;
+
+  // Update badge
+  if (recs.length > 0) {
+    document.getElementById('tradeBadge').textContent = recs.length;
+    document.getElementById('tradeBadge').style.display = '';
+  }
+
+  // 2. Technical Snapshot (for recommended stocks)
+  let techHTML = '';
+  const recNames = recs.map(r => r.name);
+  const techStocks = STOCKS.filter(s => recNames.includes(s.name) && s.price != null);
+
+  if (techStocks.length === 0) {
+    techHTML = '<div style="color:var(--text2)">暂无技术面数据</div>';
+  } else {
+    techStocks.forEach(s => {
+      // Determine trend
+      let trend = '震荡', trendCls = 'trend-neutral';
+      if (s.price && s.lowBuy) {
+        if (s.distLow > 0 && s.distLow < 10) { trend = '偏多'; trendCls = 'trend-bull'; }
+        else if (s.distLow < -20) { trend = '偏空'; trendCls = 'trend-bear'; }
+      }
+      if (s.change > 2) { trend = '放量上攻'; trendCls = 'trend-bull'; }
+      if (s.change < -3) { trend = '缩量回调'; trendCls = 'trend-bear'; }
+
+      techHTML += `<div class="tech-row">
+        <span class="tech-label"><b style="color:var(--blue)">${s.name}</b></span>
+        <span>现价 <span class="tech-val">${s.price?s.price.toFixed(2):'-'}</span></span>
+        <span>涨跌 <span class="tech-val ${s.change>0?'positive':'negative'}">${s.change!=null?(s.change>0?'+':'')+s.change.toFixed(2)+'%':'-'}</span></span>
+        <span>趋势 <span class="tech-val ${trendCls}">${trend}</span></span>
+        <span>击球值 <span class="tech-val gold">${s.hitValue||'-'}</span></span>
+        <span>评分 <span class="tech-val">${s.totalScore||0}</span></span>
+      </div>`;
+    });
+  }
+  document.getElementById('techSnapshot').innerHTML = techHTML;
+
+  // 3. Chan Analysis (缠论)
+  let chanHTML = '';
+  const chanStocks = STOCKS.filter(s => recNames.includes(s.name) && s.lowBuy && s.price);
+  if (chanStocks.length === 0) {
+    chanHTML = '<div style="color:var(--text2)">暂无缠论分析数据</div>';
+  } else {
+    chanHTML += '<div style="margin-bottom:8px;font-size:12px;color:var(--text2)">基于缠论分型的买点分析 · 低位买点=底分型最低点×1.07 · 高位买点=顶分型低点×0.97</div>';
+    chanStocks.forEach(s => {
+      const inZone = s.position === 'zone';
+      const nearZone = s.distLow != null && s.distLow > -5 && s.distLow <= 5;
+      let statusIcon = '⚪', statusText = '观望';
+      if (inZone) { statusIcon = '🟢'; statusText = '买点区间内'; }
+      else if (nearZone) { statusIcon = '🟡'; statusText = '接近买点'; }
+      else if (s.distLow < -10) { statusIcon = '🔴'; statusText = '深度跌破'; }
+      else if (s.distLow < 0) { statusIcon = '🔵'; statusText = '低于买点'; }
+      else { statusIcon = '⚪'; statusText = '高于买点'; }
+
+      chanHTML += `<div class="rec-item" style="flex-direction:column;align-items:flex-start;gap:4px">
+        <div style="display:flex;justify-content:space-between;width:100%">
+          <span><b style="color:var(--blue)">${statusIcon} ${s.name}</b> · ${s.theme||''}</span>
+          <span class="rec-meta">${statusText}</span>
+        </div>
+        <div style="display:flex;gap:16px;font-size:11px;flex-wrap:wrap">
+          <span>低买: <b>${s.lowBuy?s.lowBuy.toFixed(2):'-'}</b></span>
+          <span>高买: <b>${s.highBuy?s.highBuy.toFixed(2):'-'}</b></span>
+          <span>现价: <b>${s.price?s.price.toFixed(2):'-'}</b></span>
+          <span>距低买: <b class="${s.distLow<0?'red':'green'}">${s.distLow!=null?s.distLow+'%':'-'}</b></span>
+          <span>距高买: <b class="${s.distHigh<0?'red':'green'}">${s.distHigh!=null?s.distHigh+'%':'-'}</b></span>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('chanAnalysis').innerHTML = chanHTML;
+
+  // 4. Load saved notes
+  loadSavedNotes('trading');
+}
+
+// ===== Markdown Renderer =====
+function renderMarkdown(md) {
+  if (!md) return '';
+  let html = md;
+
+  // Escape HTML (but preserve our markdown)
+  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // Code blocks (``` ... ```)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    return '<pre><code>' + code.trim() + '</code></pre>';
+  });
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+  // Horizontal rule
+  html = html.replace(/^---+$/gm, '<hr>');
+
+  // Bold and italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // Links [text](url)
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+  // Tables (| col | col | ... |)
+  html = html.replace(/^(\|.+\|)\n(\|[-| :]+\|)\n((?:\|.+\|\n?)*)/gm, function(_, headerRow, sepRow, bodyRows) {
+    const headers = headerRow.split('|').filter(c => c.trim());
+    let t = '<table><thead><tr>';
+    headers.forEach(h => { t += '<th>' + h.trim() + '</th>'; });
+    t += '</tr></thead><tbody>';
+    const rows = bodyRows.trim().split('\n');
+    rows.forEach(row => {
+      const cols = row.split('|').filter(c => c.trim());
+      t += '<tr>';
+      cols.forEach(c => { t += '<td>' + c.trim() + '</td>'; });
+      t += '</tr>';
+    });
+    t += '</tbody></table>';
+    return t;
+  });
+
+  // Blockquotes
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Unordered lists
+  html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+
+  // Ordered lists
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+  // Paragraphs: convert double newlines
+  html = html.replace(/\n\n/g, '</p><p>');
+  // Single newlines to <br> (but not inside pre/table/ul)
+  html = html.replace(/(?<!<\/pre>)(?<!<\/table>)(?<!<\/ul>)(?<!<\/blockquote>)\n(?!<)/g, '<br>');
+
+  // Clean up empty paragraphs
+  html = html.replace(/<p><\/p>/g, '');
+
+  return html;
+}
+
+// ===== Date-based Notes (daily report date switching) =====
+let currentDailyDate = new Date().toISOString().slice(0, 10);
+
+function getDateKey(section) {
+  if (section === 'daily') {
+    return `wb_notes_${section}_${currentDailyDate}`;
+  }
+  return `wb_notes_${section}`;
+}
+
+function switchDailyDate(date) {
+  if (!date) return;
+  currentDailyDate = date;
+  // Save current notes before switching
+  loadSavedNotes('daily');
+  // Update date picker
+  document.getElementById('dailyDatePicker').value = date;
+  // Update date history tags
+  renderDateHistory();
+}
+
+function renderDateHistory() {
+  const container = document.getElementById('dailyDateHistory');
+  if (!container) return;
+
+  // Collect all dates that have saved notes
+  const dates = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const m = key.match(/^wb_notes_daily_(\d{4}-\d{2}-\d{2})$/);
+    if (m) dates.push(m[1]);
+  }
+  dates.sort().reverse();
+
+  // Show recent 7 dates as clickable tags
+  const recent = dates.slice(0, 7);
+  const today = new Date().toISOString().slice(0, 10);
+
+  let html = '';
+  // Always show today
+  if (!recent.includes(today)) recent.unshift(today);
+  recent.sort().reverse();
+
+  recent.forEach(d => {
+    const isActive = d === currentDailyDate;
+    const label = d === today ? '今天' : d.slice(5); // MM-DD
+    html += `<span class="date-tag${isActive ? ' active' : ''}" onclick="switchDailyDate('${d}')">${label}</span>`;
+  });
+
+  if (recent.length <= 1) {
+    html = '<span style="font-size:10px;color:var(--text2)">暂无历史记录，保存笔记后自动记录</span>';
+  }
+
+  container.innerHTML = html;
+}
+
+// ===== Preview Toggle =====
+function togglePreview(section) {
+  const previewEl = document.getElementById(section + 'NotesPreview');
+  const editEl = document.getElementById(section + 'NotesEdit');
+  if (!previewEl || !editEl) return;
+
+  const isHidden = previewEl.style.display === 'none';
+  if (isHidden) {
+    // Render markdown preview
+    previewEl.innerHTML = renderMarkdown(editEl.value);
+    previewEl.style.display = 'block';
+  } else {
+    previewEl.style.display = 'none';
+  }
+}
+
+// ===== Notes Persistence (localStorage) with Markdown + Date Support =====
+function loadSavedNotes(section) {
+  try {
+    const key = getDateKey(section);
+    const saved = localStorage.getItem(key);
+    const notesEl = document.getElementById(section + 'Notes');
+    const editEl = document.getElementById(section + 'NotesEdit');
+    if (saved) {
+      const data = JSON.parse(saved);
+      // Render as Markdown
+      notesEl.innerHTML = renderMarkdown(data.text) +
+        '<div style="font-size:10px;color:var(--text2);margin-top:8px;border-top:1px solid var(--border);padding-top:4px">最后编辑: ' + data.time +
+        (section === 'daily' ? ' · 📅 ' + currentDailyDate : '') + '</div>';
+      if (editEl) editEl.value = data.text;
+    } else {
+      const hint = section === 'daily' ? '（' + currentDailyDate + '）' : '';
+      notesEl.innerHTML = '<div style="color:var(--text2);font-size:12px">暂无笔记' + hint + '，请在下方编辑区输入（支持Markdown格式）</div>';
+      if (editEl) editEl.value = '';
+    }
+    // Update date history if daily
+    if (section === 'daily') renderDateHistory();
+  } catch(e) {}
+}
+
+function saveNotes(section) {
+  const editEl = document.getElementById(section + 'NotesEdit');
+  const text = editEl ? editEl.value : '';
+  if (!text.trim()) { alert('⚠ 笔记为空，无法保存'); return; }
+  const data = {text, time: new Date().toLocaleString('zh-CN', {hour12:false}).slice(0,19)};
+  const key = getDateKey(section);
+  localStorage.setItem(key, JSON.stringify(data));
+  loadSavedNotes(section);
+  alert('✅ 笔记已保存' + (section === 'daily' ? ' (' + currentDailyDate + ')' : ''));
+}
+function saveDailyNotes() { saveNotes('daily'); }
+function saveResearchNotes() { saveNotes('research'); }
+function saveTradingNotes() { saveNotes('trading'); }
+
+// ===== Notes Export/Import (跨浏览器持久化) =====
+function exportNotes(section) {
+  const key = getDateKey(section);
+  const saved = localStorage.getItem(key);
+  if (!saved) { alert('⚠ 没有可导出的笔记'); return; }
+
+  const data = JSON.parse(saved);
+  const exportData = {
+    section: section,
+    date: section === 'daily' ? currentDailyDate : null,
+    ...data,
+    exportedAt: new Date().toISOString(),
+    version: 'Dashboard 2.0'
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const dateStr = section === 'daily' ? '_' + currentDailyDate : '';
+  a.download = `wb_notes_${section}${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  alert('✅ 笔记已导出为JSON文件');
+}
+
+function importNotes(section, input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.text) { alert('⚠ 文件格式不正确，缺少text字段'); return; }
+
+      const key = getDateKey(section);
+      localStorage.setItem(key, JSON.stringify({text: data.text, time: data.time || data.exportedAt}));
+      loadSavedNotes(section);
+      alert('✅ 笔记已导入' + (section === 'daily' ? ' (' + currentDailyDate + ')' : ''));
+    } catch(err) {
+      alert('❌ 导入失败: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = ''; // Reset file input
+}
+
+// ===== Init =====
+updateHeaderStats();
+renderTable();
+document.getElementById('footerTime').textContent = new Date().toLocaleString('zh-CN', {hour12:false}).slice(0,19);
+
+// Auto-refresh header stats every 60s
+setInterval(() => {
+  updateHeaderStats();
+  document.getElementById('footerTime').textContent = new Date().toLocaleString('zh-CN', {hour12:false}).slice(0,19);
+}, 60000);
+</script>
+</body>
+</html>
