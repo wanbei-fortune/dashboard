@@ -58,6 +58,8 @@ tr.in-zone{background:rgba(5,150,105,0.04)}
 .signal-badge{padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}
 .signal-yes{background:rgba(5,150,105,0.1);color:var(--green);animation:pulse 2s infinite}
 .signal-no{color:var(--text2)}
+tr.signal-broken{background:rgba(37,99,235,0.04)}
+.signal-broken{background:rgba(37,99,235,0.08);color:var(--blue)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .positive{color:var(--green)}.negative{color:var(--red)}
 .pos-badge{padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}
@@ -175,6 +177,7 @@ tr.in-zone{background:rgba(5,150,105,0.04)}
   <div class="header-stats">
     <div class="hstat"><div class="label">总标的</div><div class="value" id="hTotal">-</div></div>
     <div class="hstat"><div class="label">🔥 买点信号</div><div class="value gold" id="hSignals">-</div></div>
+    <div class="hstat"><div class="label">⚠️ 破位</div><div class="value" style="color:var(--blue)" id="hBroken">-</div></div>
     <div class="hstat"><div class="label">📍 买点区间内</div><div class="value green" id="hZone">-</div></div>
     <div class="hstat"><div class="label">📈 多头排列</div><div class="value green" id="hBull">-</div></div>
     <div class="hstat"><div class="label">⏰ 更新</div><div class="value" style="font-size:12px" id="hTime">-</div></div>
@@ -459,7 +462,10 @@ function switchTab(tab) {
 function updateHeaderStats() {
   const valid = STOCKS.filter(s => s.price != null);
   document.getElementById('hTotal').textContent = valid.length;
-  document.getElementById('hSignals').textContent = valid.filter(s => s.buySignal === 5 && (s.totalScore||0) >= 10).length;
+  const sigStocks = valid.filter(s => s.buySignal === 5 && (s.totalScore||0) >= 10);
+  const brokenStocks = sigStocks.filter(s => s.position === 'below');
+  document.getElementById('hSignals').textContent = sigStocks.length - brokenStocks.length;
+  document.getElementById('hBroken').textContent = brokenStocks.length;
   document.getElementById('hZone').textContent = valid.filter(s => s.position === 'zone').length;
   // Approximate bullish count from pool data
   let bullCount = 0;
@@ -518,7 +524,8 @@ function renderTable(){
   if(!filtered.length){tbody.innerHTML='<tr><td colspan="16" style="text-align:center;padding:40px;color:var(--text2)">无匹配标的</td></tr>';return}
   tbody.innerHTML=filtered.map(s=>{
     const isSig=s.buySignal===5&&(s.totalScore||0)>=10;
-    const inZone=s.position==='zone'||(s.position==='below'&&s.distLow!=null&&s.distLow>-10);
+    const isBroken=s.position==='below';  // 已跌破买点→破位
+    const inZone=s.position==='zone'||(isBroken&&s.distLow!=null&&s.distLow>-10);
     const chgCls=s.change>0?'positive':(s.change<0?'negative':'');
     const peCls=s.pe>0&&s.pe<30?'positive':(s.pe>80?'negative':'');
     const revCls=s.revGrowth>20?'positive':(s.revGrowth<0?'negative':'');
@@ -528,8 +535,13 @@ function renderTable(){
     const freshIcon = s.freshness==='critical'?'<span title="买点严重过期" style="color:var(--red)">⛔</span>':
                       s.freshness==='warn'?'<span title="买点数据过期" style="color:var(--gold)">⚠</span>':
                       s.freshness==='error'?'<span title="无买点数据" style="color:var(--red)">❌</span>':'';
-    return `<tr class="${isSig?'signal-active':(inZone?'in-zone':'')}">
-      <td class="stock-name">${isSig?'🔥 ':''}${freshIcon}${s.name}</td>
+    const sigCell = isBroken && isSig ? '<span class="signal-badge signal-broken">⚠️ 破位</span>'
+                  : isSig ? '<span class="signal-badge signal-yes">🔥 买入</span>'
+                  : '<span class="signal-badge signal-no">-</span>';
+    const nameIcon = isBroken && isSig ? '⚠️ ' : (isSig ? '🔥 ' : '');
+    const rowCls = isBroken && isSig ? 'signal-broken' : (isSig ? 'signal-active' : (inZone ? 'in-zone' : ''));
+    return `<tr class="${rowCls}">
+      <td class="stock-name">${nameIcon}${freshIcon}${s.name}</td>
       <td><span class="theme-tag">${s.theme||'-'}</span></td>
       <td>${s.price?s.price.toFixed(2):'<span style="color:var(--text2)">-</span>'}</td>
       <td class="${chgCls}">${s.change!=null?(s.change>0?'+':'')+s.change.toFixed(2)+'%':'-'}</td>
@@ -544,7 +556,7 @@ function renderTable(){
       <td class="${profCls}">${s.profitGrowth?fmt(s.profitGrowth,1)+'%':'-'}</td>
       <td>${s.peg?fmt(s.peg,2):'-'}</td>
       <td title="改善${s.scoreImprove||0} 低估${s.scoreUnderval||0} 预期${s.scoreExpect||0} ROE${s.scoreROE||0} 趋势${s.scoreTrend||0} 背驰${s.scoreDiverg||0}">${scoreDots([s.scoreImprove,s.scoreUnderval,s.scoreExpect,s.scoreROE,s.scoreTrend,s.scoreDiverg])} <small>${s.totalScore||0}</small></td>
-      <td>${isSig?'<span class="signal-badge signal-yes">🔥 买入</span>':'<span class="signal-badge signal-no">-</span>'}</td>
+      <td>${sigCell}</td>
     </tr>`;
   }).join('');
 }
@@ -586,6 +598,8 @@ function loadDailyData() {
   const withScores = valid.filter(s => s.totalScore > 0).length;
   const withSignals = valid.filter(s => s.buySignal === 5).length;
   const effectiveSignals = valid.filter(s => s.buySignal === 5 && (s.totalScore||0) >= 10).length;
+  const brokenSignals = valid.filter(s => s.buySignal === 5 && (s.totalScore||0) >= 10 && s.position === 'below').length;
+  const activeSignals = effectiveSignals - brokenSignals;
   const noCode = valid.filter(s => !s.code).length;
   const deepBelow = valid.filter(s => s.distLow != null && s.distLow < -10);
 
@@ -593,7 +607,8 @@ function loadDailyData() {
   dqHTML += `<div class="dq-item dq-ok">✅ 行情覆盖: ${withPrice}/${totalStocks}</div>`;
   dqHTML += `<div class="dq-item ${withBuyPoints===withPrice?'dq-ok':'dq-warn'}">📍 买点数据: ${withBuyPoints}/${withPrice}</div>`;
   dqHTML += `<div class="dq-item dq-ok">📊 评分覆盖: ${withScores}/${withPrice}</div>`;
-  dqHTML += `<div class="dq-item ${effectiveSignals>0?'dq-ok':'dq-warn'}">🔥 有效信号: ${effectiveSignals}(评分≥10)</div>`;
+  dqHTML += `<div class="dq-item ${activeSignals>0?'dq-ok':'dq-warn'}">🔥 有效信号: ${activeSignals}只(评分≥10且未破位)</div>`;
+  dqHTML += `<div class="dq-item ${brokenSignals>0?'dq-warn':'dq-ok'}">⚠️ 破位: ${brokenSignals}只(信号+但低于买点)</div>`;
   dqHTML += `<div class="dq-item ${noCode>5?'dq-err':noCode>0?'dq-warn':'dq-ok'}">🔗 缺失代码: ${noCode}</div>`;
   dqHTML += `<div class="dq-item ${deepBelow.length>5?'dq-err':'dq-warn'}">📉 深度跌破: ${deepBelow.length}只</div>`;
   dqHTML += '</div>';
@@ -609,13 +624,16 @@ function loadDailyData() {
   if (sigStocks.length === 0) {
     sigHTML = '<div style="color:var(--text2);padding:12px">今日无买点信号</div>';
   } else {
-    sigHTML += `<div style="margin-bottom:8px">共 ${sigStocks.length} 只买点信号，其中有效信号(评分≥10) <b class="gold">${effectiveSignals}</b> 只</div>`;
+    sigHTML += `<div style="margin-bottom:8px">共 ${sigStocks.length} 只买点信号，有效 <b class="gold">${activeSignals}</b> 只(未破位)，<b style="color:var(--blue)">⚠️破位 ${brokenSignals}</b> 只</div>`;
     sigStocks.forEach(s => {
       const eff = (s.totalScore||0) >= 10;
+      const broken = eff && s.position === 'below';
+      const icon = broken ? '⚠️' : (eff ? '🔥' : '⚪');
+      const statusText = broken ? ' · <span style="color:var(--blue)">破位</span>' : '';
       sigHTML += `<div class="rec-item">
         <div>
-          <span class="rec-name">${eff?'🔥':'⚪'} ${s.name}</span>
-          <span class="rec-meta">${s.theme||''} · 评分${s.totalScore||0} · 击球值${s.hitValue||'-'}</span>
+          <span class="rec-name">${icon} ${s.name}</span>
+          <span class="rec-meta">${s.theme||''} · 评分${s.totalScore||0} · 击球值${s.hitValue||'-'}${statusText}</span>
         </div>
         <div style="text-align:right">
           <div>${s.price?s.price.toFixed(2):'-'}</div>
