@@ -721,8 +721,8 @@ function loadDailyData() {
     freshCounts[f] = (freshCounts[f]||0) + 1;
     if (f !== 'fresh') staleList.push({name:s.name, status:f, theme:s.theme||'', lowBuy:s.lowBuy, highBuy:s.highBuy});
   });
-  const total = freshCounts.fresh + freshCounts.warn + freshCounts.critical + freshCounts.error;
-  const freshPct = total > 0 ? Math.round(freshCounts.fresh / total * 100) : 0;
+  const totalFresh = freshCounts.fresh + freshCounts.warn + freshCounts.critical + freshCounts.error;
+  const freshPct = totalFresh > 0 ? Math.round(freshCounts.fresh / totalFresh * 100) : 0;
   let freshHTML = `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
     <div class="dq-item dq-ok">✅ 新鲜: ${freshCounts.fresh} (${freshPct}%)</div>
     <div class="dq-item dq-warn">⚠ 过期: ${freshCounts.warn}</div>
